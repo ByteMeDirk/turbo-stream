@@ -19,10 +19,12 @@ jobs:
         with:
           python-version: 3.8
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          make install-requirements
       - name: Run PyCharm Security
         uses: tonybaloney/pycharm-security@master
         with:
           fail_on_warnings: no
       - name: Python Unit Tests
-        run: coverage run -m unittest
+        run: |
+          make install-requirements
