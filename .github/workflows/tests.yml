@@ -6,9 +6,11 @@ on:
 
 jobs:
   test:
+
     runs-on: ubuntu-latest
+
     env:
-      COVERAGE_THRESHOLD: .9
+      COVERAGE_THRESHOLD: 85
 
     steps:
       - uses: actions/checkout@v2
@@ -19,12 +21,13 @@ jobs:
         with:
           python-version: 3.8
       - name: Install dependencies
-        run: |
-          make install-requirements
+        run: pip install -r requirements.txt
       - name: Run PyCharm Security
         uses: tonybaloney/pycharm-security@master
         with:
           fail_on_warnings: no
       - name: Python Unit Tests
         run: |
-          make install-requirements
+          pip install pytest mock pytest-mock coverage;
+          coverage run -m pytest;
+          coverage report --fail-under=${COVERAGE_THRESHOLD}
