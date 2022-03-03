@@ -8,7 +8,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from oauth2client.service_account import ServiceAccountCredentials
 
-from turbo_stream import Reader
+from turbo_stream import ReaderInterface
 from turbo_stream.utils.date_handlers import phrase_to_date
 from turbo_stream.utils.request_handlers import request_handler, retry_handler
 
@@ -17,7 +17,7 @@ logging.basicConfig(
 )
 
 
-class GoogleAnalyticsV3Reader(Reader):
+class GoogleAnalyticsV3Reader(ReaderInterface):
     """
     Google Analytics V3 Core Reporting API Reader
     """

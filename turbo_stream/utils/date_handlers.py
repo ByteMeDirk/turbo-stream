@@ -2,7 +2,7 @@
 Date Handler Methods
 """
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from dateutil.relativedelta import relativedelta
 
@@ -47,22 +47,22 @@ def phrase_to_date(phrase, date_format="%Y-%m-%d"):
 
         if phrase_period in ["day", "days"]:
             return (
-                    datetime.now() - relativedelta(days=int(phrase_increment))
+                datetime.now() - relativedelta(days=int(phrase_increment))
             ).strftime(date_format)
 
         if phrase_period in ["week", "weeks"]:
             return (
-                    datetime.now() - relativedelta(weeks=int(phrase_increment))
+                datetime.now() - relativedelta(weeks=int(phrase_increment))
             ).strftime(date_format)
 
         if phrase_period in ["month", "months"]:
             return (
-                    datetime.now() - relativedelta(months=int(phrase_increment))
+                datetime.now() - relativedelta(months=int(phrase_increment))
             ).strftime(date_format)
 
         if phrase_period in ["year", "years"]:
             return (
-                    datetime.now() - relativedelta(years=int(phrase_increment))
+                datetime.now() - relativedelta(years=int(phrase_increment))
             ).strftime(date_format)
 
         raise ValueError(
@@ -75,3 +75,22 @@ def phrase_to_date(phrase, date_format="%Y-%m-%d"):
             f"The given configuration date phrase: {phrase} is not valid, "
             f"please use the format: <integer>_<period>_ago"
         ) from err
+
+
+def date_range(start_date, end_date, delta=timedelta(days=1), date_format="%Y-%m-%d"):
+    """
+    The range is inclusive, so both start_date and end_date will be returned.
+    :start_date: The datetime object representing the first day in the range.
+    :end_date: The datetime object representing the second day in the range.
+    :delta: A datetime.timedelta instance, specifying the step interval. Defaults to one day.
+    Yields:
+        Each datetime object in the range.
+    """
+
+    start_date = datetime.strptime(phrase_to_date(start_date, date_format), date_format)
+    end_date = datetime.strptime(phrase_to_date(end_date, date_format), date_format)
+
+    current_date = start_date
+    while current_date <= end_date:
+        yield current_date.strftime(date_format)
+        current_date += delta

@@ -8,10 +8,11 @@ logging.basicConfig(
 )
 
 
-class Reader:
+class ReaderInterface:
     """
     Turbo Stream Reader Class Interface
     """
+
     def __init__(self, configuration: dict, credentials: (dict, str)):
         self._configuration: dict = configuration
         self._credentials: (dict, str) = credentials
