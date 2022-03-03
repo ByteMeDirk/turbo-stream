@@ -19,7 +19,10 @@ jobs:
           python-version: 3.8
       - name: Update setup version
         run: |
-          make update-version REF=${{ github.ref }}
+          $(eval VERSION := $(shell grep version= setup.py | grep -Eo '[0-9]+([.][0-9]+)([.][0-9]+)?'))
+          $(eval NEW_VERSION := $(${{ github.ref }}:refs/tags/v%=%))
+          sed -i "s#version='${VERSION}'#version='$(NEW_VERSION)'#g" setup.py
+          sed -i "s#${VERSION}.zip#$(NEW_VERSION).zip#g" setup.py
       - name: Zip package for publishing
         run: |
           python setup.py sdist
