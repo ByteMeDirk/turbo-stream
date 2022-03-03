@@ -8,8 +8,6 @@ setup(
     name="turbo_stream",
     packages=[
         "turbo_stream",
-        "turbo_stream.google_analytics",
-        "turbo_stream.google_search_console",
     ],
     install_requires=[
         "boto3==1.21.11",
