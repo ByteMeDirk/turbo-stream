@@ -2,10 +2,30 @@
 Turbo Stream Interfaces
 """
 import logging
+import boto3
+from datetime import datetime
 
-logging.basicConfig(
-    format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s", level=logging.INFO
-)
+_LOG_FILE_NAME = f"turbo_stream_{datetime.utcnow()}.log"
+
+
+def _set_up_logging() -> None:
+    """
+    Set up file and stream handler for loggging globally.
+    """
+    log_format = logging.Formatter(
+        "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"
+    )
+    root_logger = logging.getLogger()
+
+    file_handler = logging.FileHandler(_LOG_FILE_NAME)
+    file_handler.setFormatter(log_format)
+    file_handler.setLevel(logging.INFO)
+    root_logger.addHandler(file_handler)
+
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(log_format)
+    console_handler.setLevel(logging.INFO)
+    root_logger.addHandler(console_handler)
 
 
 class ReaderInterface:
@@ -17,6 +37,8 @@ class ReaderInterface:
         self._configuration: dict = configuration
         self._credentials: (dict, str) = credentials
         self._data_set: list = []
+
+        _set_up_logging()
 
     def get_configuration(self) -> dict:
         """

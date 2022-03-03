@@ -2,9 +2,6 @@
 Google Search Console API
 """
 import logging
-
-from turbo_stream import ReaderInterface
-import os
 import pickle
 import time
 
@@ -13,13 +10,10 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from oauth2client.client import OAuth2WebServerFlow
 
+from turbo_stream import ReaderInterface
 from turbo_stream.utils.date_handlers import date_range
 from turbo_stream.utils.file_handlers import un_nest_keys
 from turbo_stream.utils.request_handlers import request_handler
-
-logging.basicConfig(
-    format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s", level=logging.INFO
-)
 
 
 class GoogleSearchConsoleReader(ReaderInterface):

@@ -1,0 +1,30 @@
+name: publish to pypi
+
+on:
+   push:
+     tags:
+       - 'v*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
+          submodules: true
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - name: Update setup version
+        run: |
+          make update-version REF=${{ github.ref }}
+      - name: Zip package for publishing
+        run: |
+          python setup.py sdist
+      - name: Publish package
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_KEY }}

@@ -1,0 +1,31 @@
+name: tests
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      COVERAGE_THRESHOLD: .9
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: |
+          make install-requirements
+      # an automated security check
+      - name: Run PyCharm Security
+        uses: tonybaloney/pycharm-security@master
+        with:
+          fail_on_warnings: no
+      # run all tests and display a coverage report
+      - name: Python Unit Tests
+        run: pytest

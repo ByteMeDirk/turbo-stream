@@ -12,10 +12,6 @@ from turbo_stream import ReaderInterface
 from turbo_stream.utils.date_handlers import phrase_to_date
 from turbo_stream.utils.request_handlers import request_handler, retry_handler
 
-logging.basicConfig(
-    format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s", level=logging.INFO
-)
-
 
 class GoogleAnalyticsV3Reader(ReaderInterface):
     """
