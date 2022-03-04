@@ -28,12 +28,14 @@ def write_file_to_s3(bucket: str, key: str, data: (list[dict], str), profile_nam
 
     if file_fmt == "json":
         data_frame = data_frame.to_json(orient="records")
-        s3_object.put(Body=json.dumps(data_frame))
+        response = s3_object.put(Body=json.dumps(data_frame))
     elif file_fmt == "csv":
         data_frame = data_frame.to_csv(header=True)
-        s3_object.put(Body=data_frame)
+        response = s3_object.put(Body=data_frame)
     elif file_fmt == "parquet":
         data_frame = data_frame.to_parquet()
-        s3_object.put(Body=data_frame)
+        response = s3_object.put(Body=data_frame)
     else:
-        s3_object.put(Body=data)
+        response = s3_object.put(Body=data)
+
+    return response

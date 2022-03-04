@@ -95,4 +95,6 @@ class ReaderInterface:
         :param bucket: The bucket to write to in s3.
         :param key: The key path and filename where the data will be stored.
         """
-        write_file_to_s3(bucket=bucket, key=key, data=self._data_set, profile_name=self.profile_name)
+        write_file_to_s3(
+            bucket=bucket, key=key, data=self._data_set, profile_name=self.profile_name
+        )

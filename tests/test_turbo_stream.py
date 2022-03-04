@@ -3,6 +3,9 @@ Test turbo_stream.Reader
 """
 import unittest
 
+import pytest
+from botocore.exceptions import ClientError
+
 from turbo_stream import ReaderInterface
 
 MOCK_PAYLOAD = {"key": "value"}
@@ -51,7 +54,7 @@ class TestTurboStream(unittest.TestCase):
         reader._set_data_set([{"key1": "value1"}])
         self.assertEqual(reader._data_set, [{"key1": "value1"}])
 
-    def test_set_dataset(self):
+    def test_append_dataset(self):
         """
         Test the set_credentials method.
         """
@@ -59,3 +62,11 @@ class TestTurboStream(unittest.TestCase):
         reader._append_data_set({"key0": "value0"})
         reader._append_data_set({"key1": "value1"})
         self.assertEqual(reader._data_set, [{"key0": "value0"}, {"key1": "value1"}])
+
+    def test_write_data_to_s3(self):
+        """
+        Test the access of the boto3 s3 witer method.
+        """
+        reader = ReaderInterface(configuration=MOCK_PAYLOAD, credentials=MOCK_PAYLOAD)
+        with pytest.raises(ClientError):
+            reader.write_data_to_s3(bucket="test", key="test.json")
