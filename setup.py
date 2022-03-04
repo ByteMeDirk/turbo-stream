@@ -15,7 +15,7 @@ setup(
         "boto3==1.21.11",
         "google_api_python_client==2.39.0",
         "oauth2client==4.1.3",
-        "pandas==1.3.5",
+        "pandas==1.4.1",
         "python_dateutil==2.8.2",
         "PyYAML==6.0",
         "setuptools==60.5.0",
