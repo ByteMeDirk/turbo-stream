@@ -5,15 +5,14 @@ import boto3
 import pandas as pd
 
 
-def write_file_to_s3(bucket: str, key: str, data: list[dict], profile_name=None):
+def write_file_to_s3(bucket: str, key: str, data: (list[dict], str), profile_name=None):
     """
     Writes a file to s3. Json objects will be serialised before writing.
-    :param bucket:
-    :param key:
-    :param data:
-    :param profile_name:
-    :param file_format:
-    :return:
+    :param bucket: The bucket to write to in s3.
+    :param key: The key path and filename where the data will be stored.
+    :param data: The data object to be written.
+    :param profile_name: Optional AWS profile name.
+    :return: None
     """
     logging.info(f"Attempting to write data to s3://{bucket}/{key}")
 

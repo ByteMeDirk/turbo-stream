@@ -74,7 +74,7 @@ class GoogleAnalyticsV3Reader(ReaderInterface):
         initial_wait=60,
         backoff_factor=5,
     )
-    def _query_handler(self, view_id, service, start_index):
+    def _query_handler(self, property_id, service, start_index):
         """
         Separated query method to handle retry and delay methods.
         """
@@ -86,7 +86,7 @@ class GoogleAnalyticsV3Reader(ReaderInterface):
             service.data()
             .ga()
             .get(
-                ids=f"ga:{view_id}",
+                ids=f"ga:{property_id}",
                 start_date=start_date,
                 end_date=end_date,
                 # convert mets and dims into comma separated string
@@ -137,7 +137,7 @@ class GoogleAnalyticsV3Reader(ReaderInterface):
                     f"Querying for Property Id: {property_id} at Page Token: {page_token}."
                 )
                 response = self._query_handler(
-                    service=service, view_id=property_id, start_index=page_token
+                    service=service, property_id=property_id, start_index=page_token
                 )
                 if len(response.get("rows", [])) < 1:
                     logging.info(
