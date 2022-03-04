@@ -12,7 +12,7 @@ setup(
         "turbo_stream.google_search_console",
     ],
     install_requires=[
-        "boto3==1.21.11",
+        "boto3==1.21.12",
         "google_api_python_client==2.39.0",
         "oauth2client==4.1.3",
         "pandas==1.3.5",
