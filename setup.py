@@ -8,6 +8,8 @@ setup(
     name="turbo_stream",
     packages=[
         "turbo_stream",
+        "turbo_stream.google_analyitcs",
+        "turbo_stream.google_search_console",
     ],
     install_requires=[
         "boto3==1.21.11",
@@ -22,7 +24,7 @@ setup(
     ],
     extras_require={},
     description="A module for down-streaming data from a selection of vendors.",
-    version="0.0.1",
+    version="0.0.5",
     url="https://github.com/DirksCGM/turbo-stream.git",
     author="DirkSCGM",
     author_email="dirkscgm@gmail.com",
