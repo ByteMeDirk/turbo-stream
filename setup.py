@@ -20,7 +20,7 @@ setup(
         "PyYAML==6.0",
         "setuptools==60.5.0",
         "oauthlib==3.2.0",
-        "pyarrow==6.0.1",
+        "pyarrow==7.0.0",
     ],
     extras_require={},
     description="A module for down-streaming data from a selection of vendors.",
