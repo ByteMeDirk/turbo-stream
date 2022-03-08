@@ -82,7 +82,34 @@ class ReaderInterface:
         """
         self._data_set.append(row)
 
-    def write_data_to_s3(self, bucket, key):
+    def write_partition_data_to_s3(
+        self, bucket: str, path: str, partition: str, fmt="json"
+    ):
+        """
+        Writes a file to s3, partitioned by a given field in the dataset.
+        Json objects will be serialised before writing. This works best with date fields
+        where the use-case would be to reduce duplicates stored in s3.
+        Specifying the file type in the name will serialise the data.Supported formats are
+        Json, CSV, Parquet and Text.
+        :param bucket: The bucket to write to in s3.
+        :param path: The path in the bucket where the partition file will be written.
+        :param partition: The field name in the dataset what will become the partition.
+        :param fmt: The format to write in.
+        :return:
+        """
+        partition_dataset = {}
+        for row in self._data_set:
+            date_value = row.get(partition)
+            if date_value not in partition_dataset:
+                partition_dataset[date_value] = []
+            partition_dataset[date_value].append(row)
+
+        for partition_name, partition_data in partition_dataset.items():
+            write_file_to_s3(
+                bucket=bucket, key=f"{path}/{partition_name}.{fmt}", data=partition_data
+            )
+
+    def write_data_to_s3(self, bucket: str, key: str):
         """
         Writes a file to s3. Json objects will be serialised before writing.
         Specifying the file type in the name will serialise the data.Supported formats are
