@@ -6,7 +6,7 @@ from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
 
-from turbo_stream.utils.date_handlers import phrase_to_date, _is_integer
+from turbo_stream.utils.date_handlers import phrase_to_date, _is_integer, date_range
 
 DATE_FORMAT = "%Y-%m-%d"
 
@@ -81,3 +81,16 @@ class TestDateHandlers(unittest.TestCase):
         self.assertEqual(_is_integer(5), True)
         self.assertEqual(_is_integer(5.0), True)
         self.assertEqual(_is_integer("five"), False)
+
+    def test_date_range(self):
+        """
+        Test the date_range method.
+        """
+        date_list = []
+        for date in date_range("2022-01-01", "2022-01-05"):
+            date_list.append(date)
+
+        self.assertEqual(
+            date_list,
+            ["2022-01-01", "2022-01-02", "2022-01-03", "2022-01-04", "2022-01-05"],
+        )

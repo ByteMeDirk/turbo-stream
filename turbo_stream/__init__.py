@@ -2,8 +2,9 @@
 Turbo Stream Interfaces
 """
 import logging
-import boto3
 from datetime import datetime
+
+from .utils.aws_handlers import write_file_to_s3
 
 _LOG_FILE_NAME = f"turbo_stream_{datetime.utcnow()}.log"
 
@@ -17,11 +18,6 @@ def _set_up_logging() -> None:
     )
     root_logger = logging.getLogger()
 
-    file_handler = logging.FileHandler(_LOG_FILE_NAME)
-    file_handler.setFormatter(log_format)
-    file_handler.setLevel(logging.INFO)
-    root_logger.addHandler(file_handler)
-
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(log_format)
     console_handler.setLevel(logging.INFO)
@@ -33,10 +29,12 @@ class ReaderInterface:
     Turbo Stream Reader Class Interface
     """
 
-    def __init__(self, configuration: dict, credentials: (dict, str)):
+    def __init__(self, configuration: dict, credentials: (dict, str), **kwargs):
         self._configuration: dict = configuration
         self._credentials: (dict, str) = credentials
         self._data_set: list = []
+
+        self.profile_name = kwargs.get("profile_name")
 
         _set_up_logging()
 
@@ -83,3 +81,15 @@ class ReaderInterface:
         :return: None
         """
         self._data_set.append(row)
+
+    def write_data_to_s3(self, bucket, key):
+        """
+        Writes a file to s3. Json objects will be serialised before writing.
+        Specifying the file type in the name will serialise the data.Supported formats are
+        Json, CSV, Parquet and Text.
+        :param bucket: The bucket to write to in s3.
+        :param key: The key path and filename where the data will be stored.
+        """
+        write_file_to_s3(
+            bucket=bucket, key=key, data=self._data_set, profile_name=self.profile_name
+        )

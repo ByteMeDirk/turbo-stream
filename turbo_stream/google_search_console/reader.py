@@ -85,8 +85,8 @@ class GoogleSearchConsoleReader(ReaderInterface):
         to return relevant data from GSC API.
         """
         service = self._get_service()
-        start_date = self._configuration.get("startDate")
-        end_date = self._configuration.get("endDate")
+        start_date = self._configuration.get("start_date")
+        end_date = self._configuration.get("end_date")
 
         # split request by date to reduce 504 errors
         for date in date_range(start_date=start_date, end_date=end_date):
@@ -98,11 +98,11 @@ class GoogleSearchConsoleReader(ReaderInterface):
                     "endDate": date,
                     "dimensions": self._configuration.get("dimensions"),
                     "metrics": self._configuration.get("metrics"),
-                    "searchType": self._configuration.get("searchType"),
-                    "rowLimit": self._configuration.get("maxRows", 25000),
-                    "startRow": row_index * self._configuration.get("maxRows", 25000),
+                    "searchType": self._configuration.get("search_type"),
+                    "rowLimit": self._configuration.get("max_rows", 25000),
+                    "startRow": row_index * self._configuration.get("max_rows", 25000),
                     "aggregationType": self._configuration.get(
-                        "aggregationType", "byPage"
+                        "aggregation_type", "byPage"
                     ),
                 }
 
