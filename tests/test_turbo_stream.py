@@ -4,7 +4,7 @@ Test turbo_stream.Reader
 import unittest
 
 import pytest
-from botocore.exceptions import ClientError
+from botocore.exceptions import ClientError, NoCredentialsError
 
 from turbo_stream import ReaderInterface
 
@@ -68,5 +68,5 @@ class TestTurboStream(unittest.TestCase):
         Test the access of the boto3 s3 witer method.
         """
         reader = ReaderInterface(configuration=MOCK_PAYLOAD, credentials=MOCK_PAYLOAD)
-        with pytest.raises(ClientError):
+        with pytest.raises(NoCredentialsError):
             reader.write_data_to_s3(bucket="test", key="test.json")

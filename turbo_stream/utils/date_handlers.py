@@ -30,7 +30,7 @@ def phrase_to_date(phrase, date_format="%Y-%m-%d"):
     """
 
     # if patter ins a date and not phrase, return it
-    if re.match("\d{4}-\d{2}-\d{2}", phrase):
+    if re.match("\\d{4}-\\d{2}-\\d{2}", phrase):
         return phrase
 
     if phrase == "yesterday":
