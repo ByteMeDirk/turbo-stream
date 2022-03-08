@@ -68,5 +68,5 @@ class TestTurboStream(unittest.TestCase):
         Test the access of the boto3 s3 witer method.
         """
         reader = ReaderInterface(configuration=MOCK_PAYLOAD, credentials=MOCK_PAYLOAD)
-        with pytest.raises(ClientError, NoCredentialsError):
+        with pytest.raises(NoCredentialsError):
             reader.write_data_to_s3(bucket="test", key="test.json")
