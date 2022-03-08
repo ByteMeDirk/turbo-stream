@@ -2,6 +2,7 @@
 Date Handler Methods
 """
 import logging
+import re
 from datetime import datetime, timedelta
 
 from dateutil.relativedelta import relativedelta
@@ -27,6 +28,10 @@ def phrase_to_date(phrase, date_format="%Y-%m-%d"):
     :phrase: str. Something like 3_days_ago or 1_month_ago, 2_years_ago etc...
     :return: '%Y-%m-%d'
     """
+
+    # if patter ins a date and not phrase, return it
+    if re.match("\d{4}-\d{2}-\d{2}", phrase):
+        return phrase
 
     if phrase == "yesterday":
         return (datetime.now() - relativedelta(day=1)).strftime(date_format)

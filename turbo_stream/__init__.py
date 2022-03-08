@@ -4,7 +4,7 @@ Turbo Stream Interfaces
 import logging
 from datetime import datetime
 
-from turbo_stream.utils.aws_handlers import write_file_to_s3
+from .utils.aws_handlers import write_file_to_s3
 
 _LOG_FILE_NAME = f"turbo_stream_{datetime.utcnow()}.log"
 
@@ -17,11 +17,6 @@ def _set_up_logging() -> None:
         "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"
     )
     root_logger = logging.getLogger()
-
-    file_handler = logging.FileHandler(_LOG_FILE_NAME)
-    file_handler.setFormatter(log_format)
-    file_handler.setLevel(logging.INFO)
-    root_logger.addHandler(file_handler)
 
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(log_format)
