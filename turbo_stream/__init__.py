@@ -85,7 +85,7 @@ class ReaderInterface:
         return partition_dataset
 
     def write_partition_data_to_s3(
-            self, bucket: str, path: str, partition: str, fmt="json"
+        self, bucket: str, path: str, partition: str, fmt="json"
     ):
         """
         Writes a file to s3, partitioned by a given field in the dataset.

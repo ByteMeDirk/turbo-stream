@@ -1,0 +1,3 @@
+[submodule "turbo-stream.wiki"]
+	path = turbo-stream.wiki
+	url = https://github.com/DirksCGM/turbo-stream.wiki.git

@@ -23,11 +23,11 @@ class GoogleAnalyticsV3Reader(ReaderInterface):
     """
 
     def __init__(
-            self,
-            configuration: dict,
-            credentials: str,
-            service_account_email: str,
-            **kwargs,
+        self,
+        configuration: dict,
+        credentials: str,
+        service_account_email: str,
+        **kwargs,
     ):
         super().__init__(configuration, credentials)
 

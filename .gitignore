@@ -263,4 +263,5 @@ cython_debug/
 
 # Other
 /google_analytics.p12
-test.py
+local_test/test.py
+/local_test/
