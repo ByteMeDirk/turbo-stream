@@ -145,6 +145,7 @@ class GoogleAnalyticsV3Reader(ReaderInterface):
                     for header, dimension in zip(dimension_headers, dimensions):
                         row_dict[header] = dimension
 
+                    # ToDo: Unused variable "i"
                     for i, values in enumerate(date_range_values):
                         for metric, value in zip(metric_headers, values.get("values")):
                             # clean up ints and floats
