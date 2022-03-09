@@ -29,7 +29,7 @@ class TestDateHandlers(unittest.TestCase):
         """
         _date = phrase_to_date("yesterday", DATE_FORMAT)
         self.assertEqual(
-            _date, (datetime.now() - timedelta(day=1)).strftime(DATE_FORMAT)
+            _date, (datetime.now() - timedelta(days=1)).strftime(DATE_FORMAT)
         )
 
     def test_phrase_to_date_day(self):

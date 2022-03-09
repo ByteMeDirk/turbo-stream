@@ -63,7 +63,7 @@ class TestGoogleAnalyticsV3Reader(unittest.TestCase):
         )
 
         with pytest.raises(AttributeError):
-            reader._query_handler("123456", build, 1)
+            reader._query_handler("123456", build)
 
     def test_run_query(self):
         """
