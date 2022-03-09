@@ -162,4 +162,5 @@ class GoogleAnalyticsV3Reader(ReaderInterface):
 
                     self._data_set.append(row_dict)
 
+        logging.info(f"{self.__class__.__name__} process complete!")
         return self._data_set

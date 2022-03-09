@@ -76,7 +76,6 @@ class GoogleSearchConsoleReader(ReaderInterface):
         Run the API request that consumes a request payload and site url.
         This separates the request with the request handler from the rest of the logic.
         """
-        logging.info(f"Querying for Site Url: {site_url}.")
         return service.searchanalytics().query(siteUrl=site_url, body=request).execute()
 
     def run_query(self):
@@ -88,6 +87,7 @@ class GoogleSearchConsoleReader(ReaderInterface):
         start_date = self._configuration.get("start_date")
         end_date = self._configuration.get("end_date")
         logging.info(f"Gathering data between given dates {start_date} and {end_date}.")
+        logging.info(f"Querying for Site Url: {self._configuration.get('site_url')}.")
 
         # split request by date to reduce 504 errors
         for date in date_range(start_date=start_date, end_date=end_date):
@@ -113,10 +113,10 @@ class GoogleSearchConsoleReader(ReaderInterface):
                 )
 
                 if response is None:
-                    logging.info("Response is None, stopping.")
+                    logging.info("Response is None, exiting process...")
                     break
                 if "rows" not in response:
-                    logging.info("No more data in Response.")
+                    logging.info("No more data in given row, moving on....")
                     break
 
                 # added additional data that the api does not provide
@@ -143,4 +143,5 @@ class GoogleSearchConsoleReader(ReaderInterface):
                     self._append_data_set(dataset)
                 row_index += 1
 
+        logging.info(f"{self.__class__.__name__} process complete!")
         return self._data_set
