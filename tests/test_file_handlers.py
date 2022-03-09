@@ -3,7 +3,7 @@ Test turbo_stream.utils.file_handlers
 """
 import unittest
 
-from turbo_stream.utils.file_handlers import load_file
+from turbo_stream.utils.file_handlers import load_file, un_nest_keys
 
 
 class TestFileHandlers(unittest.TestCase):
@@ -36,4 +36,18 @@ class TestFileHandlers(unittest.TestCase):
         self.assertEqual(
             load_file("tests/assets/config.yaml", "yaml"),
             {"test_config": {"key": "value"}},
+        )
+
+    def test_un_nest_data(self):
+        """
+        Test the unnest method.
+        """
+        self.assertEqual(
+            un_nest_keys(
+                data={"keys": [1, 2]},
+                col="keys",
+                key_list=["key1", "key2"],
+                value_list=[1, 2, 3, 4],
+            ),
+            {"key1": 1, "key2": 2},
         )
