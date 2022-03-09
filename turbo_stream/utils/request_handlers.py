@@ -22,8 +22,8 @@ def request_handler(wait: float = 1, backoff_factor: float = 0.5):
     def retry_decorator(function):
         @wraps(function)
         def func_with_retries(*args, **kwargs):
-            _delay = wait * (1 + backoff_factor * random())
-            logging.info(f"Waiting {_delay} seconds before attempt...")
+            _delay = round(wait * (1 + backoff_factor * random()), 2)
+            logging.info(f"Waiting {_delay} seconds before the next attempt...")
             time.sleep(_delay)
             return function(*args, **kwargs)
 
@@ -33,11 +33,11 @@ def request_handler(wait: float = 1, backoff_factor: float = 0.5):
 
 
 def retry_handler(
-    exceptions,
-    total_tries: int = 4,
-    initial_wait: float = 0.5,
-    backoff_factor: int = 2,
-    should_raise: bool = False,
+        exceptions,
+        total_tries: int = 4,
+        initial_wait: float = 0.5,
+        backoff_factor: int = 2,
+        should_raise: bool = False,
 ):
     """
     Wrapper to handle the request process.
@@ -68,7 +68,7 @@ def retry_handler(
 
                     logging.info(
                         f"Function: {function.__name__}\n"
-                        f"Failed despite best efforts after {total_tries} tries\n"
+                        f"Failed at {tries} tries, trying again in {delay} seconds...\n"
                         f"Exception {exception}."
                     )
                     tries += 1

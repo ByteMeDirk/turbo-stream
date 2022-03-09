@@ -12,6 +12,10 @@ from turbo_stream import ReaderInterface
 from turbo_stream.utils.date_handlers import phrase_to_date
 from turbo_stream.utils.request_handlers import request_handler, retry_handler
 
+logging.basicConfig(
+    format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s", level=logging.INFO
+)
+
 
 class GoogleAnalyticsV3Reader(ReaderInterface):
     """
@@ -19,11 +23,11 @@ class GoogleAnalyticsV3Reader(ReaderInterface):
     """
 
     def __init__(
-        self,
-        configuration: dict,
-        credentials: str,
-        service_account_email: str,
-        **kwargs,
+            self,
+            configuration: dict,
+            credentials: str,
+            service_account_email: str,
+            **kwargs,
     ):
         super().__init__(configuration, credentials)
 
@@ -126,28 +130,25 @@ class GoogleAnalyticsV3Reader(ReaderInterface):
             response = self._query_handler(view_id=view_id, service=service)
 
             for report in response.get("reports", []):
-                # Set column headers
                 column_header = report.get("columnHeader", {})
                 dimension_headers = column_header.get("dimensions", [])
                 metric_headers = column_header.get("metricHeader", {}).get(
                     "metricHeaderEntries", []
                 )
 
-                # Get each row in the report
                 for row in report.get("data", {}).get("rows", []):
                     # create dict for each row
                     row_dict = {}
                     dimensions = row.get("dimensions", [])
                     date_range_values = row.get("metrics", [])
 
-                    # Fill dict with dimension header (key) and dimension value (value)
                     for header, dimension in zip(dimension_headers, dimensions):
                         row_dict[header] = dimension
 
-                    # Fill dict with metric header (key) and metric value (value)
+                    # ToDo: Unused variable "i"
                     for i, values in enumerate(date_range_values):
                         for metric, value in zip(metric_headers, values.get("values")):
-                            # Set int as int, float a float
+                            # clean up ints and floats
                             if "," in value or "." in value:
                                 row_dict[metric.get("name")] = float(value)
                             else:
@@ -158,4 +159,5 @@ class GoogleAnalyticsV3Reader(ReaderInterface):
 
                     self._data_set.append(row_dict)
 
+        logging.info(f"{self.__class__.__name__} process complete!")
         return self._data_set
