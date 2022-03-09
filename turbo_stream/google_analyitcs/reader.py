@@ -130,28 +130,24 @@ class GoogleAnalyticsV3Reader(ReaderInterface):
             response = self._query_handler(view_id=view_id, service=service)
 
             for report in response.get("reports", []):
-                # Set column headers
                 column_header = report.get("columnHeader", {})
                 dimension_headers = column_header.get("dimensions", [])
                 metric_headers = column_header.get("metricHeader", {}).get(
                     "metricHeaderEntries", []
                 )
 
-                # Get each row in the report
                 for row in report.get("data", {}).get("rows", []):
                     # create dict for each row
                     row_dict = {}
                     dimensions = row.get("dimensions", [])
                     date_range_values = row.get("metrics", [])
 
-                    # Fill dict with dimension header (key) and dimension value (value)
                     for header, dimension in zip(dimension_headers, dimensions):
                         row_dict[header] = dimension
 
-                    # Fill dict with metric header (key) and metric value (value)
                     for i, values in enumerate(date_range_values):
                         for metric, value in zip(metric_headers, values.get("values")):
-                            # Set int as int, float a float
+                            # clean up ints and floats
                             if "," in value or "." in value:
                                 row_dict[metric.get("name")] = float(value)
                             else:
