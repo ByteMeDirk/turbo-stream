@@ -4,6 +4,10 @@ import logging
 import boto3
 import pandas as pd
 
+logging.basicConfig(
+    format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s", level=logging.INFO
+)
+
 
 def write_file_to_s3(bucket: str, key: str, data: (list[dict], str), profile_name=None):
     """

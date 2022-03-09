@@ -1,27 +1,14 @@
 """
 Turbo Stream Interfaces
 """
+
 import logging
-from datetime import datetime
 
 from .utils.aws_handlers import write_file_to_s3
 
-_LOG_FILE_NAME = f"turbo_stream_{datetime.utcnow()}.log"
-
-
-def _set_up_logging() -> None:
-    """
-    Set up file and stream handler for loggging globally.
-    """
-    log_format = logging.Formatter(
-        "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"
-    )
-    root_logger = logging.getLogger()
-
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(log_format)
-    console_handler.setLevel(logging.INFO)
-    root_logger.addHandler(console_handler)
+logging.basicConfig(
+    format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s", level=logging.INFO
+)
 
 
 class ReaderInterface:
@@ -35,8 +22,6 @@ class ReaderInterface:
         self._data_set: list = []
 
         self.profile_name = kwargs.get("profile_name")
-
-        _set_up_logging()
 
     def get_configuration(self) -> dict:
         """
@@ -100,7 +85,7 @@ class ReaderInterface:
         return partition_dataset
 
     def write_partition_data_to_s3(
-        self, bucket: str, path: str, partition: str, fmt="json"
+            self, bucket: str, path: str, partition: str, fmt="json"
     ):
         """
         Writes a file to s3, partitioned by a given field in the dataset.
