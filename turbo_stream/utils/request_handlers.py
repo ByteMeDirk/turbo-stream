@@ -33,11 +33,11 @@ def request_handler(wait: float = 1, backoff_factor: float = 0.5):
 
 
 def retry_handler(
-        exceptions,
-        total_tries: int = 4,
-        initial_wait: float = 0.5,
-        backoff_factor: int = 2,
-        should_raise: bool = False,
+    exceptions,
+    total_tries: int = 4,
+    initial_wait: float = 0.5,
+    backoff_factor: int = 2,
+    should_raise: bool = False,
 ):
     """
     Wrapper to handle the request process.

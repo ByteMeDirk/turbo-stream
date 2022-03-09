@@ -57,17 +57,17 @@ def phrase_to_date(phrase, date_format="%Y-%m-%d"):
 
         if phrase_period in ["week", "weeks"]:
             return (
-                    datetime.now() - relativedelta(weeks=int(phrase_increment))
+                datetime.now() - relativedelta(weeks=int(phrase_increment))
             ).strftime(date_format)
 
         if phrase_period in ["month", "months"]:
             return (
-                    datetime.now() - relativedelta(months=int(phrase_increment))
+                datetime.now() - relativedelta(months=int(phrase_increment))
             ).strftime(date_format)
 
         if phrase_period in ["year", "years"]:
             return (
-                    datetime.now() - relativedelta(years=int(phrase_increment))
+                datetime.now() - relativedelta(years=int(phrase_increment))
             ).strftime(date_format)
 
         raise ValueError(

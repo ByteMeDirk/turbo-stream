@@ -41,7 +41,7 @@ class GoogleSearchConsoleReader(ReaderInterface):
         self.redirect_uri = kwargs.get("redirect_uri", "urn:ietf:wg:oauth:2.0:oob")
 
     def generate_authentication(
-            self, auth_file_location="gsc_credentials.pickle"
+        self, auth_file_location="gsc_credentials.pickle"
     ) -> None:
         """
         A user friendly method to generate a .pickle file for future authentication.
@@ -104,7 +104,7 @@ class GoogleSearchConsoleReader(ReaderInterface):
                         "searchType": self._configuration.get("search_type"),
                         "rowLimit": self._configuration.get("row_limit", 25000),
                         "startRow": row_index
-                                    * self._configuration.get("row_limit", 25000),
+                        * self._configuration.get("row_limit", 25000),
                         "aggregationType": self._configuration.get(
                             "aggregation_type", "auto"
                         ),

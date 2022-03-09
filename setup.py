@@ -2,31 +2,46 @@
 Set up the PyPi Package
 """
 
-from setuptools import setup
+# read the contents of your README file
+from pathlib import Path
+
+from setuptools import setup, find_packages
+
+# Package meta-data.
+NAME = "turbo_stream"
+DESCRIPTION = "A module for down-streaming data from a selection of vendors."
+URL = "https://github.com/DirksCGM/turbo-stream.git"
+EMAIL = "dirkscgm{at}gmail.com"
+AUTHOR = "DirksCGM"
+REQUIRES_PYTHON = ">=3.6.0"
+VERSION = "0.0.6"
+
+with open("requirements.txt") as f:
+    REQUIRED = f.read().splitlines()
 
 setup(
-    name="turbo_stream",
-    packages=[
-        "turbo_stream",
-        "turbo_stream.google_analyitcs",
-        "turbo_stream.google_search_console",
-    ],
-    install_requires=[
-        "boto3==1.21.15",
-        "google_api_python_client==2.39.0",
-        "oauth2client==4.1.3",
-        "pandas==1.4.1",
-        "python_dateutil==2.8.2",
-        "PyYAML==6.0",
-        "setuptools==60.9.3",
-        "oauthlib==3.2.0",
-        "pyarrow==7.0.0",
-    ],
+    name=NAME,
+    packages=find_packages(include=["turbo_stream", "turbo_stream.*"]),
+    install_requires=REQUIRED,
     extras_require={},
-    description="A module for down-streaming data from a selection of vendors.",
-    version="0.0.5",
-    url="https://github.com/DirksCGM/turbo-stream.git",
-    author="DirkSCGM",
-    author_email="dirkscgm@gmail.com",
+    description=DESCRIPTION,
+    version=VERSION,
+    url=URL,
+    author=AUTHOR,
+    author_email=EMAIL,
     keywords=["pip", "google_analytics", "google_search_console"],
+    long_description=(Path(__file__).parent / "README.md").read_text(),
+    long_description_content_type="text/markdown",
+    include_package_data=True,
+    license="MIT",
+    classifiers=[
+        # Trove classifiers
+        # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: Implementation :: PyPy",
+    ],
 )
