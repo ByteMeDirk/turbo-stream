@@ -1,7 +1,6 @@
 """
 Google Analytics V3 Core Reporting API
 """
-import json
 import logging
 from socket import timeout
 
@@ -46,27 +45,11 @@ class GoogleAnalyticsV3Reader(ReaderInterface):
             service_account_email=self.service_account_email,
         )
         return build(
-            serviceName="analytics",
-            version="v3",
+            serviceName="analyticsreporting",
+            version="v4",
             credentials=credentials,
             cache_discovery=False,
         )
-
-    @staticmethod
-    def _normalize_data(report) -> list:
-        """
-        Flattens the response data to a standard dict.
-        """
-        headers = [head["name"] for head in report["columnHeaders"]]
-        profile = report["profileInfo"]
-
-        data_set = []
-        for row in report["rows"]:
-            tmp = dict(zip(headers, row))
-            tmp.update(profile)
-            data_set.append(tmp)
-
-        return data_set
 
     @request_handler(wait=1, backoff_factor=0.5)
     @retry_handler(
@@ -75,34 +58,42 @@ class GoogleAnalyticsV3Reader(ReaderInterface):
         initial_wait=60,
         backoff_factor=5,
     )
-    def _query_handler(self, property_id, service, start_index):
+    def _query_handler(self, view_id, service):
         """
         Separated query method to handle retry and delay methods.
         """
-
         start_date = phrase_to_date(self._configuration.get("start_date"))
         end_date = phrase_to_date(self._configuration.get("end_date"))
         logging.info(f"Gathering data between given dates {start_date} and {end_date}.")
-        response = (
-            service.data()
-            .ga()
-            .get(
-                ids=f"ga:{property_id}",
-                start_date=start_date,
-                end_date=end_date,
-                # convert mets and dims into comma separated string
-                metrics=",".join(self._configuration.get("metrics", [])),
-                dimensions=",".join(self._configuration.get("dimensions", [])),
-                sort=self._configuration.get("sort", None),
-                filters=self._configuration.get("filters", None),
-                max_results=self._configuration.get("max_results", 10000),
-                start_index=start_index,
-                samplingLevel=self._configuration.get(
-                    "sampling_level", "HIGHER_PRECISION"
-                ),
-                include_empty_rows=self._configuration.get("include_empty_rows", True),
-            )
+
+        metrics_set = []
+        for metric in self._configuration.get("metrics", []):
+            metrics_set.append({"expression": metric})
+
+        dimensions_set = []
+        for dimension in self._configuration.get("dimensions", []):
+            dimensions_set.append({"name": dimension})
+
+        response = service.reports().batchGet(
+            body={
+                "reportRequests": [
+                    {
+                        "viewId": view_id,
+                        "dateRanges": [{"startDate": start_date, "endDate": end_date}],
+                        "metrics": metrics_set,
+                        "dimensions": dimensions_set,
+                        "metricFilterClauses": self._configuration.get(
+                            "metric_filter_clauses", []
+                        ),
+                        "dimensionFilterClauses": self._configuration.get(
+                            "dimension_filter_clauses", []
+                        ),
+                        "orderBys": self._configuration.get("order_bys", []),
+                    }
+                ]
+            }
         )
+
         return response.execute()
 
     def run_query(self):
@@ -130,24 +121,41 @@ class GoogleAnalyticsV3Reader(ReaderInterface):
               A list of the unique table ID of the form ga:XXXX, where XXXX is the
               Analytics view (profile) ID for which the query will retrieve the data.
         """
-        for property_id in self._configuration.get("property_ids"):
+        for view_id in self._configuration.get("view_ids"):
             service = self._get_service()  # new service for each view_id
-            page_token = 1  # handle paging of response
-            while True:
-                logging.info(
-                    f"Querying for Property Id: {property_id} at Page Token: {page_token}."
-                )
-                response = self._query_handler(
-                    service=service, property_id=property_id, start_index=page_token
-                )
-                if len(response.get("rows", [])) < 1:
-                    logging.info(
-                        f"No more data for Property Id: {property_id} at Page Token: {page_token}."
-                    )
-                    break
-                page_token += response.get("itemsPerPage", 0)
+            response = self._query_handler(view_id=view_id, service=service)
 
-                for row in self._normalize_data(response):
-                    self._append_data_set(row)
+            for report in response.get("reports", []):
+                # Set column headers
+                column_header = report.get("columnHeader", {})
+                dimension_headers = column_header.get("dimensions", [])
+                metric_headers = column_header.get("metricHeader", {}).get(
+                    "metricHeaderEntries", []
+                )
+
+                # Get each row in the report
+                for row in report.get("data", {}).get("rows", []):
+                    # create dict for each row
+                    row_dict = {}
+                    dimensions = row.get("dimensions", [])
+                    date_range_values = row.get("metrics", [])
+
+                    # Fill dict with dimension header (key) and dimension value (value)
+                    for header, dimension in zip(dimension_headers, dimensions):
+                        row_dict[header] = dimension
+
+                    # Fill dict with metric header (key) and metric value (value)
+                    for i, values in enumerate(date_range_values):
+                        for metric, value in zip(metric_headers, values.get("values")):
+                            # Set int as int, float a float
+                            if "," in value or "." in value:
+                                row_dict[metric.get("name")] = float(value)
+                            else:
+                                row_dict[metric.get("name")] = int(value)
+
+                    # add additional data
+                    row_dict["ga:viewId"] = view_id
+
+                    self._data_set.append(row_dict)
 
         return self._data_set

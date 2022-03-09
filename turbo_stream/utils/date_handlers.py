@@ -29,12 +29,12 @@ def phrase_to_date(phrase, date_format="%Y-%m-%d"):
     :return: '%Y-%m-%d'
     """
 
-    # if patter ins a date and not phrase, return it
+    # if pattern is a date and not phrase, return it
     if re.match("\\d{4}-\\d{2}-\\d{2}", phrase):
         return phrase
 
     if phrase == "yesterday":
-        return (datetime.now() - relativedelta(day=1)).strftime(date_format)
+        return (datetime.now() - timedelta(days=1)).strftime(date_format)
 
     if phrase == "today":
         return (datetime.now()).strftime(date_format)
@@ -51,9 +51,9 @@ def phrase_to_date(phrase, date_format="%Y-%m-%d"):
             )
 
         if phrase_period in ["day", "days"]:
-            return (
-                datetime.now() - relativedelta(days=int(phrase_increment))
-            ).strftime(date_format)
+            return (datetime.now() - timedelta(days=int(phrase_increment))).strftime(
+                date_format
+            )
 
         if phrase_period in ["week", "weeks"]:
             return (

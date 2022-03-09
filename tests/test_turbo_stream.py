@@ -62,11 +62,3 @@ class TestTurboStream(unittest.TestCase):
         reader._append_data_set({"key0": "value0"})
         reader._append_data_set({"key1": "value1"})
         self.assertEqual(reader._data_set, [{"key0": "value0"}, {"key1": "value1"}])
-
-    def test_write_data_to_s3(self):
-        """
-        Test the access of the boto3 s3 writer method.
-        """
-        reader = ReaderInterface(configuration=MOCK_PAYLOAD, credentials=MOCK_PAYLOAD)
-        with pytest.raises(NoCredentialsError):
-            reader.write_data_to_s3(bucket="test", key="test.json")
