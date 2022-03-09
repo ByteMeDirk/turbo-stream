@@ -68,7 +68,7 @@ def retry_handler(
 
                     logging.info(
                         f"Function: {function.__name__}\n"
-                        f"Failed despite best efforts after {total_tries} tries\n"
+                        f"Failed at {tries} tries, trying again in {delay} seconds...\n"
                         f"Exception {exception}."
                     )
                     tries += 1

@@ -3,16 +3,12 @@ Google Search Console API
 """
 import logging
 import pickle
-import time
 
-import googleapiclient
 from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
 from oauth2client.client import OAuth2WebServerFlow
 
 from turbo_stream import ReaderInterface
 from turbo_stream.utils.date_handlers import date_range
-from turbo_stream.utils.file_handlers import un_nest_keys
 from turbo_stream.utils.request_handlers import request_handler
 
 
@@ -87,63 +83,60 @@ class GoogleSearchConsoleReader(ReaderInterface):
         service = self._get_service()
         start_date = self._configuration.get("start_date")
         end_date = self._configuration.get("end_date")
+        logging.info(f"Gathering data between given dates {start_date} and {end_date}.")
 
         # split request by date to reduce 504 errors
         for date in date_range(start_date=start_date, end_date=end_date):
             # run until none is returned or there is no more data in rows
             row_index = 0
             while True:
-                request = {
-                    "startDate": date,
-                    "endDate": date,
-                    "dimensions": self._configuration.get("dimensions"),
-                    "metrics": self._configuration.get("metrics"),
-                    "searchType": self._configuration.get("search_type"),
-                    "rowLimit": self._configuration.get("max_rows", 25000),
-                    "startRow": row_index * self._configuration.get("max_rows", 25000),
-                    "aggregationType": self._configuration.get(
-                        "aggregation_type", "byPage"
-                    ),
-                }
+                response = self._query_handler(
+                    service=service,
+                    request={
+                        "startDate": date,
+                        "endDate": date,
+                        "dimensions": self._configuration.get("dimensions"),
+                        "metrics": self._configuration.get("metrics"),
+                        "searchType": self._configuration.get("search_type"),
+                        "rowLimit": self._configuration.get("row_limit", 25000),
+                        "startRow": row_index
+                        * self._configuration.get("row_limit", 25000),
+                        "aggregationType": self._configuration.get(
+                            "aggregation_type", "auto"
+                        ),
+                    },
+                    site_url=self._configuration.get("site_url"),
+                )
 
-                try:
-                    response = self._query_handler(
-                        service=service,
-                        request=request,
-                        site_url=self._configuration.get("siteUrl"),
+                if response is None:
+                    logging.info("Response is None, stopping.")
+                    break
+                if "rows" not in response:
+                    logging.info("No more data in Response.")
+                    break
+
+                # added additional data that the api does not provide
+                for row in response["rows"]:
+                    dataset = {
+                        "site_url": self._configuration.get("site_url"),
+                        "search_type": self._configuration.get("search_type"),
+                    }
+
+                    # get dimension data keys and values
+                    dataset.update(
+                        dict(
+                            zip(
+                                self._configuration.get("dimensions", []),
+                                row.get("keys", []),
+                            )
+                        )
                     )
 
-                    if response is None:
-                        logging.info("Response is None, stopping.")
-                        break
-                    if "rows" not in response:
-                        logging.info("No more data in Response.")
-                        break
+                    # get metrics data
+                    for metric in self._configuration.get("metrics", []):
+                        dataset[metric] = row.get(metric)
 
-                    # added additional data that the api does not provide
-                    # un un_nest keys
-                    for row in response["rows"]:
-                        row["site_url"] = self._configuration.get("siteUrl")
-                        row["search_type"] = self._configuration.get("searchType")
-                        row = un_nest_keys(
-                            data=row,
-                            col="keys",
-                            key_list=self._configuration.get("dimensions"),
-                            value_list=row.get("keys"),
-                        )
-                        self._append_data_set(row)
-                    row_index += 1
-
-                except googleapiclient.errors.HttpError as error:
-                    if error.resp.status == 403:
-                        message = (
-                            f"GSC quotaExceeded on: {self._configuration.get('siteUrl')} "
-                            f"for {self._configuration.get('searchType')}, "
-                            f"waiting for 15 minutes."
-                        )
-                        logging.info(message)
-                        time.sleep(900)
-                    else:
-                        raise error
+                    self._append_data_set(dataset)
+                row_index += 1
 
         return self._data_set
