@@ -82,6 +82,23 @@ class ReaderInterface:
         """
         self._data_set.append(row)
 
+    def _partition_dataset(self, partition: str) -> dict:
+        """
+        Returns an object where the data is sorted by the keys as partitions, and
+        the values relating to the given keys. THe partitions are essentially fields in
+        the dataset that become prtitioned within the data.
+        :param partition: The field name in the dataset what will become the partition.
+        :return: Partitioned object.
+        """
+        partition_dataset = {}
+        for row in self._data_set:
+            date_value = row.get(partition)
+            if date_value not in partition_dataset:
+                partition_dataset[date_value] = []
+            partition_dataset[date_value].append(row)
+
+        return partition_dataset
+
     def write_partition_data_to_s3(
         self, bucket: str, path: str, partition: str, fmt="json"
     ):
@@ -95,15 +112,9 @@ class ReaderInterface:
         :param path: The path in the bucket where the partition file will be written.
         :param partition: The field name in the dataset what will become the partition.
         :param fmt: The format to write in.
-        :return:
+        :return: The partitioned dataset object
         """
-        partition_dataset = {}
-        for row in self._data_set:
-            date_value = row.get(partition)
-            if date_value not in partition_dataset:
-                partition_dataset[date_value] = []
-            partition_dataset[date_value].append(row)
-
+        partition_dataset = self._partition_dataset(partition=partition)
         for partition_name, partition_data in partition_dataset.items():
             write_file_to_s3(
                 bucket=bucket, key=f"{path}/{partition_name}.{fmt}", data=partition_data
