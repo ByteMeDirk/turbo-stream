@@ -22,7 +22,7 @@ def request_handler(wait: float = 1, backoff_factor: float = 0.5):
     def retry_decorator(function):
         @wraps(function)
         def func_with_retries(*args, **kwargs):
-            _delay = wait * (1 + backoff_factor * random())
+            _delay = round(wait * (1 + backoff_factor * random()), 2)
             logging.info(f"Waiting {_delay} seconds before attempt...")
             time.sleep(_delay)
             return function(*args, **kwargs)
