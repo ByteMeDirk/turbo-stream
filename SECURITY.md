@@ -14,4 +14,4 @@ Python
 
 ## Reporting a Vulnerability
 
-Please contact the codeowners for any fulnerabilities detected.
+Please contact the codeowners for any vulnerabilities detected.
