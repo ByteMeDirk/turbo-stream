@@ -16,13 +16,26 @@ AUTHOR = "DirksCGM"
 REQUIRES_PYTHON = ">=3.6.0"
 VERSION = "0.0.6"
 
-with open("requirements.txt") as f:
-    REQUIRED = f.read().splitlines()
-
 setup(
     name=NAME,
     packages=find_packages(include=["turbo_stream", "turbo_stream.*"]),
-    install_requires=REQUIRED,
+    install_requires=[
+        "boto3~=1.21.16",
+        "google_api_python_client==2.39.0",
+        "oauth2client==4.1.3",
+        "pandas~=1.4.1",
+        "python_dateutil==2.8.2",
+        "PyYAML==6.0",
+        "setuptools~=60.9.3",
+        "oauthlib==3.2.0",
+        "pyarrow==7.0.0",
+        "coverage==6.3.2",
+        "pylint==2.12.2",
+        "pytest==7.0.1",
+        "pyOpenSSL",
+        "botocore~=1.24.16",
+        "moto~=3.0.7",
+    ],
     extras_require={},
     description=DESCRIPTION,
     version=VERSION,
