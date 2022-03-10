@@ -11,10 +11,10 @@ from setuptools import setup, find_packages
 NAME = "turbo_stream"
 DESCRIPTION = "A module for down-streaming data from a selection of vendors."
 URL = "https://github.com/DirksCGM/turbo-stream.git"
-EMAIL = "dirkscgm{at}gmail.com"
+EMAIL = "dirkscgm@gmail.com"
 AUTHOR = "DirksCGM"
 REQUIRES_PYTHON = ">=3.6.0"
-VERSION = "0.0.6"
+VERSION = "0.0.7"
 
 setup(
     name=NAME,
