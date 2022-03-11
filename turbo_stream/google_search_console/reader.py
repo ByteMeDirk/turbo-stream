@@ -3,13 +3,15 @@ Google Search Console API
 """
 import logging
 import pickle
+from socket import timeout
 
 from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 from oauth2client.client import OAuth2WebServerFlow
 
 from turbo_stream import ReaderInterface
 from turbo_stream.utils.date_handlers import date_range
-from turbo_stream.utils.request_handlers import request_handler
+from turbo_stream.utils.request_handlers import request_handler, retry_handler
 
 logging.basicConfig(
     format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s", level=logging.INFO
@@ -67,10 +69,20 @@ class GoogleSearchConsoleReader(ReaderInterface):
         """
         Makes use of the .pickle cred file to establish a webmaster connection.
         """
-        credentials = pickle.load(open(self._credentials, "rb"))
-        return build("webmasters", "v3", credentials=credentials, cache_discovery=False)
+        with open(self._credentials, "rb") as _file:
+            credentials = pickle.load(_file)
+
+        return build(
+            "searchconsole", "v1", credentials=credentials, cache_discovery=False
+        )
 
     @request_handler(wait=1, backoff_factor=0.5)
+    @retry_handler(
+        exceptions=(timeout, HttpError),
+        total_tries=5,
+        initial_wait=60,
+        backoff_factor=5,
+    )
     def _query_handler(self, service, request, site_url):
         """
         Run the API request that consumes a request payload and site url.
@@ -91,6 +103,7 @@ class GoogleSearchConsoleReader(ReaderInterface):
 
         # split request by date to reduce 504 errors
         for date in date_range(start_date=start_date, end_date=end_date):
+            logging.info(f"Querying at date: {date}.")
             # run until none is returned or there is no more data in rows
             row_index = 0
             while True:

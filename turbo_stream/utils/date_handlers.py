@@ -39,9 +39,15 @@ def phrase_to_date(phrase, date_format="%Y-%m-%d"):
     if phrase == "today":
         return (datetime.now()).strftime(date_format)
 
-    split_phrase = phrase.split("_")
-    phrase_increment = split_phrase[0]
-    phrase_period = split_phrase[1]
+    try:
+        split_phrase = phrase.split("_")
+        phrase_increment = split_phrase[0]
+        phrase_period = split_phrase[1]
+    except IndexError as err:
+        raise ValueError(
+            f"The given configuration date phrase: {phrase} is not valid, "
+            f"please use the format: <integer>_<period>_ago"
+        ) from err
 
     try:
         if not _is_integer(phrase_increment):
