@@ -263,5 +263,5 @@ cython_debug/
 
 # Other
 /google_analytics.p12
-local_test/test.py
+local_test/GoogleSearchConsoleReader.py
 /local_test/

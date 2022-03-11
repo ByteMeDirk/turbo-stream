@@ -7,10 +7,10 @@ import OpenSSL
 import pytest
 from googleapiclient.discovery import build
 
-from turbo_stream.google_analyitcs.reader import GoogleAnalyticsV3Reader
+from turbo_stream.google_analyitcs.reader import GoogleAnalyticsReader
 
 
-class TestGoogleAnalyticsV3Reader(unittest.TestCase):
+class TestGoogleAnalyticsReader(unittest.TestCase):
     """
     Test turbo_stream.google_analytics.reader
     """
@@ -19,7 +19,7 @@ class TestGoogleAnalyticsV3Reader(unittest.TestCase):
         """
         Tests if the class gathers the credentials.
         """
-        reader = GoogleAnalyticsV3Reader(
+        reader = GoogleAnalyticsReader(
             credentials="tests/assets/mock_ga_creds.p12",
             configuration={},
             service_account_email="",
@@ -32,7 +32,7 @@ class TestGoogleAnalyticsV3Reader(unittest.TestCase):
         """
         Tests if the class gathers the configs.
         """
-        reader = GoogleAnalyticsV3Reader(
+        reader = GoogleAnalyticsReader(
             credentials="", configuration={}, service_account_email=""
         )
 
@@ -43,7 +43,7 @@ class TestGoogleAnalyticsV3Reader(unittest.TestCase):
         """
         Tests if the GA build object connects.
         """
-        reader = GoogleAnalyticsV3Reader(
+        reader = GoogleAnalyticsReader(
             credentials="tests/assets/mock_ga_creds.p12",
             configuration={},
             service_account_email="",
@@ -56,20 +56,20 @@ class TestGoogleAnalyticsV3Reader(unittest.TestCase):
         """
         Test if query handler fetches service.
         """
-        reader = GoogleAnalyticsV3Reader(
+        reader = GoogleAnalyticsReader(
             credentials="tests/assets/mock_ga_creds.p12",
             configuration={"start_date": "today", "end_date": "today"},
             service_account_email="",
         )
 
         with pytest.raises(AttributeError):
-            reader._query_handler("123456", build)
+            reader._query_handler("123456", build, "2022-01-01")
 
     def test_run_query(self):
         """
         Test if query handler fetches service.
         """
-        reader = GoogleAnalyticsV3Reader(
+        reader = GoogleAnalyticsReader(
             credentials="tests/assets/mock_ga_creds.p12",
             configuration={"start_date": "today", "end_date": "today"},
             service_account_email="",

@@ -9,7 +9,7 @@ from googleapiclient.errors import HttpError
 from oauth2client.service_account import ServiceAccountCredentials
 
 from turbo_stream import ReaderInterface
-from turbo_stream.utils.date_handlers import phrase_to_date
+from turbo_stream.utils.date_handlers import phrase_to_date, date_range
 from turbo_stream.utils.request_handlers import request_handler, retry_handler
 
 logging.basicConfig(
@@ -17,7 +17,7 @@ logging.basicConfig(
 )
 
 
-class GoogleAnalyticsV3Reader(ReaderInterface):
+class GoogleAnalyticsReader(ReaderInterface):
     """
     Google Analytics V3 Core Reporting API Reader
     """
@@ -62,13 +62,11 @@ class GoogleAnalyticsV3Reader(ReaderInterface):
         initial_wait=60,
         backoff_factor=5,
     )
-    def _query_handler(self, view_id, service):
+    def _query_handler(self, view_id, service, date):
         """
         Separated query method to handle retry and delay methods.
         """
-        start_date = phrase_to_date(self._configuration.get("start_date"))
-        end_date = phrase_to_date(self._configuration.get("end_date"))
-        logging.info(f"Gathering data between given dates {start_date} and {end_date}.")
+        logging.info(f"Querying at date: {date}.")
 
         metrics_set = []
         for metric in self._configuration.get("metrics", []):
@@ -83,7 +81,7 @@ class GoogleAnalyticsV3Reader(ReaderInterface):
                 "reportRequests": [
                     {
                         "viewId": view_id,
-                        "dateRanges": [{"startDate": start_date, "endDate": end_date}],
+                        "dateRanges": [{"startDate": date, "endDate": date}],
                         "metrics": metrics_set,
                         "dimensions": dimensions_set,
                         "metricFilterClauses": self._configuration.get(
@@ -125,39 +123,46 @@ class GoogleAnalyticsV3Reader(ReaderInterface):
               A list of the unique table ID of the form ga:XXXX, where XXXX is the
               Analytics view (profile) ID for which the query will retrieve the data.
         """
+        start_date = phrase_to_date(self._configuration.get("start_date"))
+        end_date = phrase_to_date(self._configuration.get("end_date"))
         for view_id in self._configuration.get("view_ids"):
+            logging.info(f"Querying data for View Id: {view_id}.")
             service = self._get_service()  # new service for each view_id
-            response = self._query_handler(view_id=view_id, service=service)
-
-            for report in response.get("reports", []):
-                column_header = report.get("columnHeader", {})
-                dimension_headers = column_header.get("dimensions", [])
-                metric_headers = column_header.get("metricHeader", {}).get(
-                    "metricHeaderEntries", []
+            for date in date_range(start_date=start_date, end_date=end_date):
+                response = self._query_handler(
+                    view_id=view_id, service=service, date=date
                 )
+                for report in response.get("reports", []):
+                    column_header = report.get("columnHeader", {})
+                    dimension_headers = column_header.get("dimensions", [])
+                    metric_headers = column_header.get("metricHeader", {}).get(
+                        "metricHeaderEntries", []
+                    )
 
-                for row in report.get("data", {}).get("rows", []):
-                    # create dict for each row
-                    row_dict = {}
-                    dimensions = row.get("dimensions", [])
-                    date_range_values = row.get("metrics", [])
+                    for row in report.get("data", {}).get("rows", []):
+                        # create dict for each row
+                        row_dict = {}
+                        dimensions = row.get("dimensions", [])
+                        date_range_values = row.get("metrics", [])
 
-                    for header, dimension in zip(dimension_headers, dimensions):
-                        row_dict[header] = dimension
+                        for header, dimension in zip(dimension_headers, dimensions):
+                            row_dict[header] = dimension
 
-                    # ToDo: Unused variable "i"
-                    for i, values in enumerate(date_range_values):
-                        for metric, value in zip(metric_headers, values.get("values")):
-                            # clean up ints and floats
-                            if "," in value or "." in value:
-                                row_dict[metric.get("name")] = float(value)
-                            else:
-                                row_dict[metric.get("name")] = int(value)
+                        # ToDo: Unused variable "i"
+                        for i, values in enumerate(date_range_values):
+                            for metric, value in zip(
+                                metric_headers, values.get("values")
+                            ):
+                                # clean up ints and floats
+                                if "," in value or "." in value:
+                                    row_dict[metric.get("name")] = float(value)
+                                else:
+                                    row_dict[metric.get("name")] = int(value)
 
-                    # add additional data
-                    row_dict["ga:viewId"] = view_id
+                        # add additional data
+                        row_dict["ga:viewId"] = view_id
 
-                    self._data_set.append(row_dict)
+                        self._data_set.append(row_dict)
 
         logging.info(f"{self.__class__.__name__} process complete!")
         return self._data_set
