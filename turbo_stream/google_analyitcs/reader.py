@@ -49,10 +49,11 @@ class GoogleAnalyticsReader(ReaderInterface):
             service_account_email=self.service_account_email,
         )
         return build(
-            serviceName="analyticsreporting",
+            serviceName="analytics",
             version="v4",
             credentials=credentials,
             cache_discovery=False,
+            discoveryServiceUrl='https://analyticsreporting.googleapis.com/$discovery/rest'
         )
 
     @request_handler(wait=1, backoff_factor=0.5)
@@ -90,7 +91,10 @@ class GoogleAnalyticsReader(ReaderInterface):
                         "dimensionFilterClauses": self._configuration.get(
                             "dimension_filter_clauses", []
                         ),
+                        "filtersExpression": self._configuration.get("filters_expression"),
                         "orderBys": self._configuration.get("order_bys", []),
+                        "samplingLevel": self._configuration.get("sampling_level", "LARGE"),
+                        "includeEmptyRows": self._configuration.get("include_empty_rows", "true"),
                     }
                 ]
             }
