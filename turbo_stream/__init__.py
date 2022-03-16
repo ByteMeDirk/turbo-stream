@@ -26,17 +26,17 @@ class ReaderInterface:
         if kwargs.get("intro_off", True):
             # A fun intro banner for the service log
             logging.info(
-                r"Welcome to:                                         "
-                r"@+################################################+@"
-                r"@+                  TURBO STREAM!                 +@"
-                r"@+------------------------------------------------+@"
-                r"@+ It is dangerous to go alone, take this...      +@"
-                r"@+                         \    /\                +@"
-                r"@+                          )  ( ')    < meow...  +@"
-                r"@+                         (  /  )                +@"
-                r"@+                          \(__)|                +@"
-                r"@+################################################+@"
-                r"                                       By: DirksCGM "
+                "Welcome to:                                         \n"
+                "@+################################################+@\n"
+                "@+                  TURBO-STREAM!                 +@\n"
+                "@+------------------------------------------------+@\n"
+                "@+ It is dangerous to go alone, take this...      +@\n"
+                "@+                         \\    /\\                +@\n"
+                "@+                          )  ( ')    < meow...  +@\n"
+                "@+                         (  /  )                +@\n"
+                "@+                          \\(__)|                +@\n"
+                "@+################################################+@\n"
+                "                                        By: DirksCGM \n"
             )
 
     def get_configuration(self) -> dict:
