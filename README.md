@@ -1,4 +1,4 @@
-# turbo-stream
+![turbo-stream](https://github.com/DirksCGM/turbo-stream/static/TurboStreamLogo.gif)
 
 A module for down-streaming data from a selection of vendors.
 
@@ -13,3 +13,5 @@ The solution is still under early stages of development, along with the wiki tha
 Current support includes:
 * [Google Analytics V4 Reporting Api](https://github.com/DirksCGM/turbo-stream/wiki/Google-Analytics-V4-Reporting-Api)
 * [Google Search Console Api](https://github.com/DirksCGM/turbo-stream/wiki/Google-Search-Console-Api)
+* [Onesignal Api](https://github.com/DirksCGM/turbo-stream/wiki/Onesignal-Api)
+

@@ -94,15 +94,24 @@ class GoogleAnalyticsReader(ReaderInterface):
                         "filtersExpression": self._configuration.get(
                             "filters_expression"
                         ),
+                        "segments": self._configuration.get(
+                            "segments"
+                        ),
+                        "pivots": self._configuration.get(
+                            "pivots"
+                        ),
                         "orderBys": self._configuration.get("order_bys", []),
                         "samplingLevel": self._configuration.get(
                             "sampling_level", "LARGE"
                         ),
                         "includeEmptyRows": self._configuration.get(
-                            "include_empty_rows", "true"
+                            "include_empty_rows", True
                         ),
-                    }
-                ]
+                        "hideTotals": self._configuration.get("hide_totals", False),
+                        "hideValueRanges": self._configuration.get("hide_value_ranges", False)
+                    },
+                ],
+                "useResourceQuotas": self._configuration.get("use_resource_quotas")
             }
         )
 
