@@ -53,7 +53,7 @@ class GoogleAnalyticsReader(ReaderInterface):
             version="v4",
             credentials=credentials,
             cache_discovery=False,
-            discoveryServiceUrl='https://analyticsreporting.googleapis.com/$discovery/rest'
+            discoveryServiceUrl="https://analyticsreporting.googleapis.com/$discovery/rest",
         )
 
     @request_handler(wait=1, backoff_factor=0.5)
@@ -91,10 +91,16 @@ class GoogleAnalyticsReader(ReaderInterface):
                         "dimensionFilterClauses": self._configuration.get(
                             "dimension_filter_clauses", []
                         ),
-                        "filtersExpression": self._configuration.get("filters_expression"),
+                        "filtersExpression": self._configuration.get(
+                            "filters_expression"
+                        ),
                         "orderBys": self._configuration.get("order_bys", []),
-                        "samplingLevel": self._configuration.get("sampling_level", "LARGE"),
-                        "includeEmptyRows": self._configuration.get("include_empty_rows", "true"),
+                        "samplingLevel": self._configuration.get(
+                            "sampling_level", "LARGE"
+                        ),
+                        "includeEmptyRows": self._configuration.get(
+                            "include_empty_rows", "true"
+                        ),
                     }
                 ]
             }
