@@ -114,13 +114,17 @@ class GoogleSearchConsoleReader(ReaderInterface):
                         "endDate": date,
                         "dimensions": self._configuration.get("dimensions"),
                         "metrics": self._configuration.get("metrics"),
-                        "searchType": self._configuration.get("search_type"),
+                        "type": self._configuration.get("type"),
                         "rowLimit": self._configuration.get("row_limit", 25000),
                         "startRow": row_index
                         * self._configuration.get("row_limit", 25000),
                         "aggregationType": self._configuration.get(
                             "aggregation_type", "auto"
                         ),
+                        "dimensionFilterGroups": self._configuration.get(
+                            "dimension_filter_groups", []
+                        ),
+                        "dataState": self._configuration.get("data_state", "final"),
                     },
                     site_url=self._configuration.get("site_url"),
                 )

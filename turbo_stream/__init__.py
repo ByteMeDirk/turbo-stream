@@ -23,6 +23,26 @@ class ReaderInterface:
 
         self.profile_name = kwargs.get("profile_name")
 
+        if kwargs.get("intro_off", True):
+            # A fun intro banner for the service log
+            logging.info(
+                "|\nWelcome to:                                                             \n"
+                "@+####################################################################+@\n"
+                "@+ _____            _                 __ _                            +@\n"
+                "@+/__   \\_   _ _ __| |__   ___       / _\\ |_ _ __ ___  __ _ _ __ ___  +@\n"
+                "@+  / /\\/ | | | '__| '_ \\ / _ \\ _____\\ \\| __| '__/ _ \\/ _` | '_ ` _ \\+@\n"
+                "@+ / /  | |_| | |  | |_) | (_) |_____|\\ \\ |_| | |  __/ (_| | | | | | |+@\n"
+                "@+ \\/    \\__,_|_|  |_.__/ \\___/      \\__/\\__|_|  \\___|\\__,_|_| |_| |_|+@\n"
+                "@+--------------------------------------------------------------------+@\n"
+                "@+ It is dangerous to go alone, take this...                          +@\n"
+                "@+                         \\    /\\                                    +@\n"
+                "@+                          )  ( ')    < meow...                      +@\n"
+                "@+                         (  /  )                                    +@\n"
+                "@+                          \\(__)|                                    +@\n"
+                "@+####################################################################+@\n"
+                "                                                             By: DirksCGM\n"
+            )
+
     def get_configuration(self) -> dict:
         """
         :return: Returns configuration object.
@@ -85,7 +105,7 @@ class ReaderInterface:
         return partition_dataset
 
     def write_partition_data_to_s3(
-        self, bucket: str, path: str, partition: str, fmt="json"
+            self, bucket: str, path: str, partition: str, fmt="json"
     ):
         """
         Writes a file to s3, partitioned by a given field in the dataset.
