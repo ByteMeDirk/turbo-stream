@@ -23,6 +23,22 @@ class ReaderInterface:
 
         self.profile_name = kwargs.get("profile_name")
 
+        if kwargs.get("intro_off", False):
+            # A fun intro banner for the service log
+            logging.info(
+                r"Welcome to:                                         "
+                r"@+################################################+@"
+                r"@+                  TURBO STREAM!                 +@"
+                r"@+------------------------------------------------+@"
+                r"@+ It is dangerous to go alone, take this...      +@"
+                r"@+                         \    /\                +@"
+                r"@+                          )  ( ')    < meow...  +@"
+                r"@+                         (  /  )                +@"
+                r"@+                          \(__)|                +@"
+                r"@+################################################+@"
+                r"                                       By: DirksCGM "
+            )
+
     def get_configuration(self) -> dict:
         """
         :return: Returns configuration object.

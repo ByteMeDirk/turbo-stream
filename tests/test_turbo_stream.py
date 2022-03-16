@@ -19,6 +19,15 @@ class TestTurboStream(unittest.TestCase):
     Test turbo_stream.Reader
     """
 
+    def test_fun_intro(self):
+        """
+        Test the get_configuration method.
+        """
+        reader = ReaderInterface(
+            configuration=MOCK_PAYLOAD, credentials=MOCK_PAYLOAD, intro_off=True
+        )
+        self.assertEqual(reader.get_configuration(), MOCK_PAYLOAD)
+
     def test_get_configuration(self):
         """
         Test the get_configuration method.
