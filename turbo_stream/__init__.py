@@ -23,7 +23,7 @@ class ReaderInterface:
 
         self.profile_name = kwargs.get("profile_name")
 
-        if kwargs.get("intro_off", False):
+        if kwargs.get("intro_off", True):
             # A fun intro banner for the service log
             logging.info(
                 r"Welcome to:                                         "
