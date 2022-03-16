@@ -1,5 +1,5 @@
 """
-Google Analytics V3 Core Reporting API
+Google Analytics v4 Core Reporting API
 """
 import logging
 from socket import timeout
@@ -19,7 +19,7 @@ logging.basicConfig(
 
 class GoogleAnalyticsReader(ReaderInterface):
     """
-    Google Analytics V3 Core Reporting API Reader
+    Google Analytics v4 Core Reporting API Reader
     """
 
     def __init__(
@@ -41,7 +41,7 @@ class GoogleAnalyticsReader(ReaderInterface):
 
     def _get_service(self) -> build:
         """
-        Get a service that communicates to the Google V3 Core Reporting API.
+        Get a service that communicates to the Google v4 Core Reporting API.
         """
         credentials = ServiceAccountCredentials.from_p12_keyfile(
             filename=self._credentials,
@@ -110,7 +110,7 @@ class GoogleAnalyticsReader(ReaderInterface):
 
     def run_query(self):
         """
-        Core V3 Reporting API.
+        Core v4 Reporting API.
         The method will try each query 5 times before failing.
         Config File:
             start_date: |

@@ -14,7 +14,7 @@ URL = "https://github.com/DirksCGM/turbo-stream.git"
 EMAIL = "dirkscgm@gmail.com"
 AUTHOR = "DirksCGM"
 REQUIRES_PYTHON = ">=3.6.0"
-VERSION = "0.0.7"
+VERSION = "0.0.8"
 
 setup(
     name=NAME,
