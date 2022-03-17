@@ -43,7 +43,7 @@ class GoogleSearchConsoleReader(ReaderInterface):
         self.redirect_uri = kwargs.get("redirect_uri", "urn:ietf:wg:oauth:2.0:oob")
 
     def generate_authentication(
-            self, auth_file_location="gsc_credentials.pickle"
+        self, auth_file_location="gsc_credentials.pickle"
     ) -> None:
         """
         A user friendly method to generate a .pickle file for future authentication.
@@ -124,7 +124,7 @@ class GoogleSearchConsoleReader(ReaderInterface):
                             "type": self._configuration.get("type"),
                             "rowLimit": self._configuration.get("row_limit", 25000),
                             "startRow": row_index
-                                        * self._configuration.get("row_limit", 25000),
+                            * self._configuration.get("row_limit", 25000),
                             "aggregationType": self._configuration.get(
                                 "aggregation_type", "auto"
                             ),
@@ -186,13 +186,13 @@ class GoogleSearchConsoleReader(ReaderInterface):
         :param file_location:  Local file location.
         """
         for dimension, dimension_dataset in self._data_set[0].items():
-            file_split = file_location.split('.')
+            file_split = file_location.split(".")
             filepath = f"{file_split[0]}_{dimension}.{file_split[-1]}"
             logging.info(f"Writing {dimension} data to local path: {filepath}.")
             write_file(data=dimension_dataset, file_location=filepath)
 
     def write_partition_data_to_s3(
-            self, bucket: str, path: str, partition: str, fmt="json"
+        self, bucket: str, path: str, partition: str, fmt="json"
     ):
         """
         Writes a file to s3, partitioned by a given field in the dataset.
@@ -207,8 +207,12 @@ class GoogleSearchConsoleReader(ReaderInterface):
         :return: The partitioned dataset object
         """
         for dimension, dimension_dataset in self._data_set[0].items():
-            partition_dataset = self._partition_dataset(partition=partition, dataset=dimension_dataset)
+            partition_dataset = self._partition_dataset(
+                partition=partition, dataset=dimension_dataset
+            )
             for partition_name, partition_data in partition_dataset.items():
                 write_file_to_s3(
-                    bucket=bucket, key=f"{path}/{partition_name}_{dimension}.{fmt}", data=partition_data
+                    bucket=bucket,
+                    key=f"{path}/{partition_name}_{dimension}.{fmt}",
+                    data=partition_data,
                 )
