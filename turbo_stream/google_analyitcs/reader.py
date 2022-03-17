@@ -1,6 +1,7 @@
 """
 Google Analytics v4 Core Reporting API
 """
+import json
 import logging
 from socket import timeout
 
@@ -115,6 +116,41 @@ class GoogleAnalyticsReader(ReaderInterface):
 
         return response.execute()
 
+    def _iterate_report(self, reports, view_id):
+        """
+        Iterate and process report data.
+        :param reports: Reports object returned from GA
+        :param view_id: Given view_id from config.
+        :return: GA Dataset.
+        """
+        for report in reports:
+            column_header = report.get("columnHeader", {})
+            dimension_headers = column_header.get("dimensions", [])
+            metric_headers = column_header.get("metricHeader", {}).get(
+                "metricHeaderEntries", []
+            )
+
+            for row in report.get("data", {}).get("rows", []):
+                # create dict for each row
+                row_dict = {}
+                dimensions = row.get("dimensions", [])
+                date_range_values = row.get("metrics", [])
+
+                for header, dimension in zip(dimension_headers, dimensions):
+                    row_dict[header] = dimension
+
+                for values in date_range_values:
+                    for metric, value in zip(metric_headers, values.get("values")):
+                        # clean up ints and floats
+                        if "," in value or "." in value:
+                            row_dict[metric.get("name")] = float(value)
+                        else:
+                            row_dict[metric.get("name")] = int(value)
+
+                # add additional data
+                row_dict["ga:viewId"] = view_id
+                self._data_set.append(row_dict)
+
     def run_query(self):
         """
         Core v4 Reporting API.
@@ -149,37 +185,8 @@ class GoogleAnalyticsReader(ReaderInterface):
                 response = self._query_handler(
                     view_id=view_id, service=service, date=date
                 )
-                for report in response.get("reports", []):
-                    column_header = report.get("columnHeader", {})
-                    dimension_headers = column_header.get("dimensions", [])
-                    metric_headers = column_header.get("metricHeader", {}).get(
-                        "metricHeaderEntries", []
-                    )
-
-                    for row in report.get("data", {}).get("rows", []):
-                        # create dict for each row
-                        row_dict = {}
-                        dimensions = row.get("dimensions", [])
-                        date_range_values = row.get("metrics", [])
-
-                        for header, dimension in zip(dimension_headers, dimensions):
-                            row_dict[header] = dimension
-
-                        # ToDo: Unused variable "i"
-                        for i, values in enumerate(date_range_values):
-                            for metric, value in zip(
-                                metric_headers, values.get("values")
-                            ):
-                                # clean up ints and floats
-                                if "," in value or "." in value:
-                                    row_dict[metric.get("name")] = float(value)
-                                else:
-                                    row_dict[metric.get("name")] = int(value)
-
-                        # add additional data
-                        row_dict["ga:viewId"] = view_id
-
-                        self._data_set.append(row_dict)
+                reports = response.get("reports", [])
+                self._iterate_report(reports=reports, view_id=view_id)
 
         logging.info(f"{self.__class__.__name__} process complete!")
         return self._data_set

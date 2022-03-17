@@ -22,6 +22,7 @@ class TestGoogleSearchConsoleReader(unittest.TestCase):
         reader = GoogleSearchConsoleReader(
             credentials="tests/assets/mock_gsc_creds.pickle",
             configuration={},
+            intro_off=True,
         )
 
         self.assertEqual(reader._credentials, "tests/assets/mock_gsc_creds.pickle")
@@ -31,7 +32,9 @@ class TestGoogleSearchConsoleReader(unittest.TestCase):
         """
         Tests if the class GoogleSearchConsoleReader the configs.
         """
-        reader = GoogleSearchConsoleReader(credentials={}, configuration={})
+        reader = GoogleSearchConsoleReader(
+            credentials={}, configuration={}, intro_off=True
+        )
 
         self.assertEqual(reader._configuration, {})
         self.assertEqual(reader.get_configuration(), {})
@@ -43,6 +46,7 @@ class TestGoogleSearchConsoleReader(unittest.TestCase):
         reader = GoogleSearchConsoleReader(
             credentials="tests/assets/mock_gsc_creds.json",
             configuration={},
+            intro_off=True,
         )
 
         with pytest.raises(TypeError):
@@ -55,6 +59,7 @@ class TestGoogleSearchConsoleReader(unittest.TestCase):
         reader = GoogleSearchConsoleReader(
             credentials="tests/assets/mock_gsc_creds.pickle",
             configuration={},
+            intro_off=True,
         )
 
         with pytest.raises(EOFError):
@@ -67,6 +72,7 @@ class TestGoogleSearchConsoleReader(unittest.TestCase):
         reader = GoogleSearchConsoleReader(
             credentials="tests/assets/mock_gsc_creds.pickle",
             configuration={"start_date": "today", "end_date": "today"},
+            intro_off=True,
         )
 
         with pytest.raises(EOFError):
@@ -79,6 +85,7 @@ class TestGoogleSearchConsoleReader(unittest.TestCase):
         reader = GoogleSearchConsoleReader(
             credentials="tests/assets/mock_gsc_creds.pickle",
             configuration={"start_date": "today", "end_date": "today"},
+            intro_off=True,
         )
 
         with pytest.raises(EOFError):

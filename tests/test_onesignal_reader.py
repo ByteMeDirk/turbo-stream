@@ -3,9 +3,7 @@ Test turbo_stream.onesignal.reader
 """
 import unittest
 
-import OpenSSL
 import pytest
-from googleapiclient.discovery import build
 
 from turbo_stream.onesignal.reader import OnesignalReader
 
@@ -17,6 +15,7 @@ class TestOnesignalReader(unittest.TestCase):
             configuration={"endpoint": "csv_export"},
             credentials="tests/assets/mock_onesignal_creds.yml",
             credential_file_fmt="yml",
+            intro_off=True,
         )
 
         self.assertEqual(
@@ -30,6 +29,7 @@ class TestOnesignalReader(unittest.TestCase):
             configuration={"endpoint": "view_notification"},
             credentials="tests/assets/mock_onesignal_creds.yml",
             credential_file_fmt="yml",
+            intro_off=True,
         )
 
         self.assertEqual(
@@ -43,6 +43,7 @@ class TestOnesignalReader(unittest.TestCase):
             configuration={"endpoint": "view_notification"},
             credentials="tests/assets/mock_onesignal_creds.yml",
             credential_file_fmt="yml",
+            intro_off=True,
         )
 
         self.assertEqual(
@@ -56,6 +57,7 @@ class TestOnesignalReader(unittest.TestCase):
             configuration={"endpoint": "csv_export"},
             credentials="tests/assets/mock_onesignal_creds.yml",
             credential_file_fmt="yml",
+            intro_off=True,
         )
 
         self.assertEqual(
@@ -73,10 +75,30 @@ class TestOnesignalReader(unittest.TestCase):
             configuration={"endpoint": "csv_export"},
             credentials="tests/assets/mock_onesignal_creds.yml",
             credential_file_fmt="yml",
+            intro_off=True,
         )
 
         with pytest.raises(ConnectionError):
             reader.run_query()
+
+    def test_get_csv_export_handler(self):
+        """
+        Tests if the csv export attempts to be gathered.
+        """
+        reader = OnesignalReader(
+            configuration={"endpoint": "csv_export"},
+            credentials="tests/assets/mock_onesignal_creds.yml",
+            credential_file_fmt="yml",
+            intro_off=True,
+            csv_wait_time=1,
+            csv_get_attempts=1,
+        )
+        with pytest.raises(ConnectionError):
+            reader._get_csv_export_handler(
+                response={
+                    "csv_file_url": "https://onesignal.s3.amazonaws.com/csv_exports/xxx/xxx.csv.gz"
+                }
+            )
 
     def test_run_query_view_notification(self):
         """Attempt to run query for view notification."""
@@ -84,6 +106,7 @@ class TestOnesignalReader(unittest.TestCase):
             configuration={"endpoint": "view_notification"},
             credentials="tests/assets/mock_onesignal_creds.yml",
             credential_file_fmt="yml",
+            intro_off=True,
         )
 
         with pytest.raises(TypeError):
