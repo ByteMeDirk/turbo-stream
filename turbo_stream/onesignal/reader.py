@@ -10,7 +10,7 @@ import requests
 
 from turbo_stream import ReaderInterface
 from turbo_stream.utils.file_handlers import load_file
-from turbo_stream.utils.request_handlers import request_handler, retry_handler
+from turbo_stream.utils.request_handlers import request_handler
 
 logging.basicConfig(
     format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s", level=logging.INFO
@@ -72,6 +72,41 @@ class OnesignalReader(ReaderInterface):
         url = self._generate_url(endpoint="csv_export")
         return requests.post(url=url, headers=self._header)
 
+    def _get_csv_export_handler(self, response):
+        """
+        Attempts to gather the data from the csv url, and waits while
+        it is being generated.
+        :param response: Onesignal response object.
+        """
+        csv_url = response.get("csv_file_url", None)
+        if csv_url is not None:
+            attempts = 1
+            while True:
+                try:
+                    logging.info(f"Attempting to gather data from url: {csv_url}.")
+                    data_frame: pd.DataFrame = pd.read_csv(csv_url)
+                    self._data_set = data_frame.to_dict(orient="records")
+                    logging.info("Data gathered, decompressing and serialising...")
+
+                    logging.info(f"{self.__class__.__name__} process complete!")
+                    return self._data_set
+
+                except URLError:
+                    logging.info(
+                        f"CSV file not generated, waiting for {self._csv_wait_time} seconds. "
+                        f"Attempt {attempts}/{self._csv_get_attempts}."
+                    )
+                    time.sleep(self._csv_wait_time)
+                    if attempts > self._csv_get_attempts:
+                        raise ConnectionError(
+                            f"CSV file failed to generate after {attempts} attempts. "
+                            "Contact Onesignal for help."
+                        )
+                    attempts += 1
+
+        else:
+            raise ConnectionError(response)
+
     def run_query(self):
         """
         Generate a compressed CSV export of all of your current user data.
@@ -101,37 +136,11 @@ class OnesignalReader(ReaderInterface):
             return self._data_set
 
         if _endpoint == "csv_export":
-            response = self._csv_export_query_handler().json()
-            csv_url = response.get("csv_file_url", None)
-
             # if connection is good, try to get the csv file from the Onesignal
             # Athena wrapper, it could take time to generate, so wait for it.
-            if csv_url is not None:
-                attempts = 1
-                while True:
-                    try:
-                        logging.info(f"Attempting to gather data from url: {csv_url}.")
-                        data_frame: pd.DataFrame = pd.read_csv(csv_url)
-                        self._data_set = data_frame.to_dict(orient="records")
-                        logging.info("Data gathered, decompressing and serialising...")
-
-                        logging.info(f"{self.__class__.__name__} process complete!")
-                        return self._data_set
-
-                    except URLError:
-                        logging.info(
-                            f"CSV file not generated, waiting for {self._csv_wait_time} seconds. "
-                            f"Attempt {attempts}/{self._csv_get_attempts}."
-                        )
-                        time.sleep(self._csv_wait_time)
-                        if attempts > self._csv_get_attempts:
-                            logging.info(
-                                "CSV file failed to generate after 10 attempts. "
-                                "Contact Onesignal for help."
-                            )
-                        attempts += 1
-            else:
-                raise ConnectionError(response)
+            response = self._csv_export_query_handler().json()
+            self._get_csv_export_handler(response=response)
+            return self._data_set
 
         raise ValueError(
             f"Given endpoint: {_endpoint} is not supported. "

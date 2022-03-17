@@ -23,7 +23,7 @@ class ReaderInterface:
 
         self.profile_name = kwargs.get("profile_name")
 
-        if kwargs.get("intro_off", True):
+        if not kwargs.get("intro_off", True):
             # A fun intro banner for the service log
             logging.info(
                 "|\nWelcome to:                                                             \n"
@@ -105,7 +105,7 @@ class ReaderInterface:
         return partition_dataset
 
     def write_partition_data_to_s3(
-            self, bucket: str, path: str, partition: str, fmt="json"
+        self, bucket: str, path: str, partition: str, fmt="json"
     ):
         """
         Writes a file to s3, partitioned by a given field in the dataset.
