@@ -5,6 +5,7 @@ Turbo Stream Interfaces
 import logging
 
 from .utils.aws_handlers import write_file_to_s3
+from .utils.file_handlers import write_file
 
 logging.basicConfig(
     format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s", level=logging.INFO
@@ -87,7 +88,7 @@ class ReaderInterface:
         """
         self._data_set.append(row)
 
-    def _partition_dataset(self, partition: str) -> dict:
+    def _partition_dataset(self, partition: str, dataset=None) -> dict:
         """
         Returns an object where the data is sorted by the keys as partitions, and
         the values relating to the given keys. THe partitions are essentially fields in
@@ -95,8 +96,12 @@ class ReaderInterface:
         :param partition: The field name in the dataset what will become the partition.
         :return: Partitioned object.
         """
+        # provide the option to modify the class method write object
+        if dataset is None:
+            dataset = self._data_set
+
         partition_dataset = {}
-        for row in self._data_set:
+        for row in dataset:
             date_value = row.get(partition)
             if date_value not in partition_dataset:
                 partition_dataset[date_value] = []
@@ -136,3 +141,11 @@ class ReaderInterface:
         write_file_to_s3(
             bucket=bucket, key=key, data=self._data_set, profile_name=self.profile_name
         )
+
+    def write_date_to_local(self, file_location):
+        """
+        Writes data object to local file as json, csv or yaml.
+        :param file_location: Local file location.
+        """
+        logging.info(f"Writing data to local path: {file_location}.")
+        write_file(data=self._data_set, file_location=file_location)
