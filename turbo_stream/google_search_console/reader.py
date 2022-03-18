@@ -9,6 +9,8 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from oauth2client.client import OAuth2WebServerFlow
 
+from turbo_stream.postgresql.writer import _PostgreSQLWriter
+
 from turbo_stream import ReaderInterface, write_file, write_file_to_s3
 from turbo_stream.utils.date_handlers import date_range
 from turbo_stream.utils.request_handlers import request_handler, retry_handler
@@ -216,3 +218,52 @@ class GoogleSearchConsoleReader(ReaderInterface):
                     key=f"{path}/{partition_name}_{dimension}.{fmt}",
                     data=partition_data,
                 )
+
+    def write_data_to_postgresql(
+        self, credentials: dict, table_name: str, truncate_on_insert=False
+    ):
+        _writer = _PostgreSQLWriter(credentials=credentials)
+        _dimensions = self._configuration.get("dimensions", [])
+        _metrics = self._configuration.get("metrics", [])
+
+        # for gsc, we have a base schema that has each dimension added as
+        # multi-metric databases in an rds setting
+        for _dimension in _dimensions:
+            _schema = {
+                "site_url": {
+                    "type": "VARCHAR",
+                    "not_null": True,
+                },
+                "search_type": {
+                    "type": "VARCHAR",
+                    "not_null": True,
+                },
+            }
+
+            for _metric in _metrics:
+                _schema[_metric] = {
+                    "type": "NUMERIC",
+                    "not_null": True,
+                }
+
+            _schema[_dimension] = {
+                "type": "VARCHAR",
+                "not_null": True,
+            }
+
+            if "date" not in _schema:
+                _schema["date"] = {
+                    "type": "VARCHAR",
+                    "not_null": True,
+                }
+
+            _writer._create_table(
+                table_name=f"{table_name}_{_dimension}", schema=_schema
+            )
+
+        for _dimension, _dimension_dataset in self._data_set[0].items():
+            _writer._insert_table(
+                table_name=f"{table_name}_{_dimension}",
+                dataset=_dimension_dataset,
+                truncate_on_insert=truncate_on_insert,
+            )
