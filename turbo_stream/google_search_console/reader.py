@@ -220,7 +220,11 @@ class GoogleSearchConsoleReader(ReaderInterface):
                 )
 
     def write_data_to_postgresql(
-        self, credentials: dict, table_name: str, truncate_on_insert=False
+        self,
+        credentials: dict,
+        table_name: str,
+        truncate_on_insert: bool = False,
+        deduplicate: bool = False,
     ):
         _writer = _PostgreSQLWriter(credentials=credentials)
         _dimensions = self._configuration.get("dimensions", [])
@@ -267,3 +271,6 @@ class GoogleSearchConsoleReader(ReaderInterface):
                 dataset=_dimension_dataset,
                 truncate_on_insert=truncate_on_insert,
             )
+
+        if deduplicate:
+            _writer._drop_duplicates(table_name=table_name, schema=_schema)

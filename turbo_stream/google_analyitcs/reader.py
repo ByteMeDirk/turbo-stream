@@ -26,11 +26,11 @@ class GoogleAnalyticsReader(ReaderInterface):
     """
 
     def __init__(
-            self,
-            configuration: dict,
-            credentials: str,
-            service_account_email: str,
-            **kwargs,
+        self,
+        configuration: dict,
+        credentials: str,
+        service_account_email: str,
+        **kwargs,
     ):
         super().__init__(configuration, credentials)
 
@@ -156,8 +156,6 @@ class GoogleAnalyticsReader(ReaderInterface):
                 for key, value in row_dict.items():
                     new_row_dict[key.replace("ga:", "")] = value
 
-                print(new_row_dict)
-
                 self._data_set.append(new_row_dict)
 
     def run_query(self):
@@ -201,15 +199,23 @@ class GoogleAnalyticsReader(ReaderInterface):
         return self._data_set
 
     def write_data_to_postgresql(
-            self, credentials: dict, table_name: str, truncate_on_insert=False
+        self,
+        credentials: dict,
+        table_name: str,
+        truncate_on_insert: bool = False,
+        deduplicate: bool = False,
     ):
         _writer = _PostgreSQLWriter(credentials=credentials)
 
-        _dimensions = [dim.replace("ga:", "") for dim in self._configuration.get("dimensions", [])]
-        _metrics = [met.replace("ga:", "") for met in self._configuration.get("metrics", [])]
+        _dimensions = [
+            dim.replace("ga:", "") for dim in self._configuration.get("dimensions", [])
+        ]
+        _metrics = [
+            met.replace("ga:", "") for met in self._configuration.get("metrics", [])
+        ]
 
         _schema = {
-            'viewId': {
+            "viewId": {
                 "type": "VARCHAR",
                 "not_null": True,
             }
@@ -227,12 +233,13 @@ class GoogleAnalyticsReader(ReaderInterface):
                 "not_null": True,
             }
 
-        _writer._create_table(
-            table_name=table_name, schema=_schema
-        )
+        _writer._create_table(table_name=table_name, schema=_schema)
 
         _writer._insert_table(
             table_name=table_name,
             dataset=self._data_set,
             truncate_on_insert=truncate_on_insert,
         )
+
+        if deduplicate:
+            _writer._drop_duplicates(table_name=table_name, schema=_schema)
