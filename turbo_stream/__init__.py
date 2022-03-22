@@ -149,3 +149,13 @@ class ReaderInterface:
         """
         logging.info(f"Writing data to local path: {file_location}.")
         write_file(data=self._data_set, file_location=file_location)
+
+
+class _WriterInterface:
+    """
+    Turbo Stream Writer Class Interface
+    """
+
+    def __init__(self, credentials: (dict, str), configuration: dict = None, **kwargs):
+        self._configuration: dict = configuration
+        self._credentials: (dict, str) = credentials

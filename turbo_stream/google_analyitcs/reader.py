@@ -5,6 +5,8 @@ import json
 import logging
 from socket import timeout
 
+from turbo_stream.postgresql.writer import _PostgreSQLWriter
+
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from oauth2client.service_account import ServiceAccountCredentials
@@ -147,9 +149,14 @@ class GoogleAnalyticsReader(ReaderInterface):
                         else:
                             row_dict[metric.get("name")] = int(value)
 
-                # add additional data
-                row_dict["ga:viewId"] = view_id
-                self._data_set.append(row_dict)
+                # add additional data & clean up field names
+                row_dict["viewId"] = view_id
+                new_row_dict = {}
+
+                for key, value in row_dict.items():
+                    new_row_dict[key.replace("ga:", "")] = value
+
+                self._data_set.append(new_row_dict)
 
     def run_query(self):
         """
@@ -190,3 +197,49 @@ class GoogleAnalyticsReader(ReaderInterface):
 
         logging.info(f"{self.__class__.__name__} process complete!")
         return self._data_set
+
+    def write_data_to_postgresql(
+        self,
+        credentials: dict,
+        table_name: str,
+        truncate_on_insert: bool = False,
+        deduplicate: bool = False,
+    ):
+        _writer = _PostgreSQLWriter(credentials=credentials)
+
+        _dimensions = [
+            dim.replace("ga:", "") for dim in self._configuration.get("dimensions", [])
+        ]
+        _metrics = [
+            met.replace("ga:", "") for met in self._configuration.get("metrics", [])
+        ]
+
+        _schema = {
+            "viewId": {
+                "type": "VARCHAR",
+                "not_null": True,
+            }
+        }
+
+        for _metric in _metrics:
+            _schema[_metric] = {
+                "type": "NUMERIC",
+                "not_null": True,
+            }
+
+        for _dimension in _dimensions:
+            _schema[_dimension] = {
+                "type": "VARCHAR",
+                "not_null": True,
+            }
+
+        _writer._create_table(table_name=table_name, schema=_schema)
+
+        _writer._insert_table(
+            table_name=table_name,
+            dataset=self._data_set,
+            truncate_on_insert=truncate_on_insert,
+        )
+
+        if deduplicate:
+            _writer._drop_duplicates(table_name=table_name, schema=_schema)
