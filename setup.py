@@ -31,7 +31,7 @@ setup(
         "pyarrow==7.0.0",
         "coverage==6.3.2",
         "pylint==2.12.2",
-        "pytest==7.0.1",
+        "pytest==7.1.1",
         "pyOpenSSL",
         "botocore~=1.24.16",
         "moto~=3.0.7",
