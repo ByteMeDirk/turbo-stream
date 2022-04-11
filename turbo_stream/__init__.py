@@ -11,6 +11,24 @@ logging.basicConfig(
     format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s", level=logging.INFO
 )
 
+_intro_flag = (
+    "|\nWelcome to:                                                             \n"
+    "@+####################################################################+@\n"
+    "@+ _____            _                 __ _                            +@\n"
+    "@+/__   \\_   _ _ __| |__   ___       / _\\ |_ _ __ ___  __ _ _ __ ___  +@\n"
+    "@+  / /\\/ | | | '__| '_ \\ / _ \\ _____\\ \\| __| '__/ _ \\/ _` | '_ ` _ \\+@\n"
+    "@+ / /  | |_| | |  | |_) | (_) |_____|\\ \\ |_| | |  __/ (_| | | | | | |+@\n"
+    "@+ \\/    \\__,_|_|  |_.__/ \\___/      \\__/\\__|_|  \\___|\\__,_|_| |_| |_|+@\n"
+    "@+--------------------------------------------------------------------+@\n"
+    "@+ It is dangerous to go alone, take this...                          +@\n"
+    "@+                         \\    /\\                                    +@\n"
+    "@+                          )  ( ')    < meow...                      +@\n"
+    "@+                         (  /  )                                    +@\n"
+    "@+                          \\(__)|                                    +@\n"
+    "@+####################################################################+@\n"
+    "                                                             By: DirksCGM\n"
+)
+
 
 class ReaderInterface:
     """
@@ -27,21 +45,7 @@ class ReaderInterface:
         if not kwargs.get("intro_off", True):
             # A fun intro banner for the service log
             logging.info(
-                "|\nWelcome to:                                                             \n"
-                "@+####################################################################+@\n"
-                "@+ _____            _                 __ _                            +@\n"
-                "@+/__   \\_   _ _ __| |__   ___       / _\\ |_ _ __ ___  __ _ _ __ ___  +@\n"
-                "@+  / /\\/ | | | '__| '_ \\ / _ \\ _____\\ \\| __| '__/ _ \\/ _` | '_ ` _ \\+@\n"
-                "@+ / /  | |_| | |  | |_) | (_) |_____|\\ \\ |_| | |  __/ (_| | | | | | |+@\n"
-                "@+ \\/    \\__,_|_|  |_.__/ \\___/      \\__/\\__|_|  \\___|\\__,_|_| |_| |_|+@\n"
-                "@+--------------------------------------------------------------------+@\n"
-                "@+ It is dangerous to go alone, take this...                          +@\n"
-                "@+                         \\    /\\                                    +@\n"
-                "@+                          )  ( ')    < meow...                      +@\n"
-                "@+                         (  /  )                                    +@\n"
-                "@+                          \\(__)|                                    +@\n"
-                "@+####################################################################+@\n"
-                "                                                             By: DirksCGM\n"
+                _intro_flag
             )
 
     def get_configuration(self) -> dict:
@@ -80,6 +84,12 @@ class ReaderInterface:
         """
         self._data_set = data_set
 
+    def get_data_set(self) -> list:
+        """
+        :return: Returns whole dataset object.
+        """
+        return self._data_set
+
     def _append_data_set(self, row: dict) -> None:
         """
         Append key-value pair to dataset object.
@@ -92,7 +102,7 @@ class ReaderInterface:
         """
         Returns an object where the data is sorted by the keys as partitions, and
         the values relating to the given keys. THe partitions are essentially fields in
-        the dataset that become prtitioned within the data.
+        the dataset that become partitioned within the data.
         :param partition: The field name in the dataset what will become the partition.
         :return: Partitioned object.
         """
@@ -109,8 +119,28 @@ class ReaderInterface:
 
         return partition_dataset
 
+    def write_partition_data_to_local(
+            self, path: str, partition: str, fmt="parquet"
+    ):
+        """
+        Writes a file to local, partitioned by a given field in the dataset.
+        Json objects will be serialised before writing. This works best with date fields
+        where the use-case would be to reduce duplicates stored.
+        Specifying the file type in the name will serialise the data.Supported formats are
+        Json, CSV, Parquet and Text.
+        :param path: The path in the bucket where the partition file will be written.
+        :param partition: The field name in the dataset what will become the partition.
+        :param fmt: The format to write in.
+        :return: The partitioned dataset object
+        """
+        partition_dataset = self._partition_dataset(partition=partition)
+        for partition_name, partition_data in partition_dataset.items():
+            write_file(
+                file_location=f"{path}/{partition_name}.{fmt}", data=partition_data
+            )
+
     def write_partition_data_to_s3(
-        self, bucket: str, path: str, partition: str, fmt="json"
+            self, bucket: str, path: str, partition: str, fmt="parquet"
     ):
         """
         Writes a file to s3, partitioned by a given field in the dataset.

@@ -9,7 +9,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from oauth2client.client import OAuth2WebServerFlow
 
-from turbo_stream import ReaderInterface, write_file, write_file_to_s3
+from turbo_stream import ReaderInterface, write_file, write_file_to_s3, _intro_flag
 from turbo_stream.utils.date_handlers import date_range
 from turbo_stream.utils.request_handlers import request_handler, retry_handler
 
@@ -41,6 +41,12 @@ class GoogleSearchConsoleReader(ReaderInterface):
             "oath_scope", "https://www.googleapis.com/auth/webmasters.readonly"
         )
         self.redirect_uri = kwargs.get("redirect_uri", "urn:ietf:wg:oauth:2.0:oob")
+
+        if not kwargs.get("intro_off", True):
+            # A fun intro banner for the service log
+            logging.info(
+                _intro_flag
+            )
 
     def generate_authentication(
         self, auth_file_location="gsc_credentials.pickle"

@@ -8,7 +8,7 @@ from urllib.error import URLError
 import pandas as pd
 import requests
 
-from turbo_stream import ReaderInterface
+from turbo_stream import ReaderInterface, _intro_flag
 from turbo_stream.utils.file_handlers import load_file
 from turbo_stream.utils.request_handlers import request_handler
 
@@ -39,6 +39,12 @@ class OnesignalReader(ReaderInterface):
 
         self._csv_wait_time = kwargs.get("csv_wait_time", 30)
         self._csv_get_attempts = kwargs.get("csv_get_attempts", 5)
+
+        if not kwargs.get("intro_off", True):
+            # A fun intro banner for the service log
+            logging.info(
+                _intro_flag
+            )
 
     def _generate_url(self, endpoint: str):
         """

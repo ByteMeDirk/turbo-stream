@@ -3,6 +3,7 @@ File Handler Methods
 """
 import json
 import logging
+import os.path
 
 import pandas as pd
 import yaml
@@ -33,6 +34,11 @@ def write_file(data: (dict, list), file_location):
     """
     fmt = file_location.split(".")[-1]
 
+    directory = "/".join(file_location.split("/")[:-1]) + "/"
+    if not os.path.exists(directory):
+        logging.info(f"Creating non existing directory for {directory}.")
+        os.mkdir(directory)
+
     if fmt in ["yaml", "yml"]:
         with open(file_location, "w", encoding="utf-8") as file:
             file.write(yaml.dump(data, sort_keys=False))
@@ -43,11 +49,11 @@ def write_file(data: (dict, list), file_location):
 
     elif fmt == "csv":
         try:
-            df = pd.DataFrame(data)
-            df.to_csv(file_location, header=True, index=True)
-        except ValueError as err:
-            df = pd.DataFrame(list(data))
-            df.to_csv(file_location, header=True, index=True)
+            dataframe = pd.DataFrame(data)
+            dataframe.to_csv(file_location, header=True, index=True)
+        except ValueError:
+            dataframe = pd.DataFrame(list(data))
+            dataframe.to_csv(file_location, header=True, index=True)
 
     else:
         raise ValueError(f"fmt {fmt} is not supported, try yaml, yml, csv or json.")
