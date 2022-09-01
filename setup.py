@@ -34,7 +34,7 @@ setup(
         "pytest==7.0.1",
         "pyOpenSSL",
         "botocore~=1.24.16",
-        "moto~=3.0.7",
+        "moto>=3.0.7,<4.1.0",
     ],
     extras_require={},
     description=DESCRIPTION,
