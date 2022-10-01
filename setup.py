@@ -26,7 +26,7 @@ setup(
         "pandas~=1.4.1",
         "python_dateutil==2.8.2",
         "PyYAML==6.0",
-        "setuptools~=60.9.3",
+        "setuptools>=60.9.3,<65.5.0",
         "oauthlib==3.2.0",
         "pyarrow==7.0.0",
         "coverage==6.3.2",
