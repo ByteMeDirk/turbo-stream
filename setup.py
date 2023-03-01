@@ -20,7 +20,7 @@ setup(
     name=NAME,
     packages=find_packages(include=["turbo_stream", "turbo_stream.*"]),
     install_requires=[
-        "boto3~=1.21.16",
+        "boto3>=1.21.16,<1.27.0",
         "google_api_python_client==2.39.0",
         "oauth2client==4.1.3",
         "pandas~=1.4.1",
